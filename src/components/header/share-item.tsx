@@ -18,6 +18,21 @@ import {
     AlertDialogDescription
 } from "../ui/alert-dialog";
 
+import {
+    Field,
+    FieldLabel,
+} from "../ui/field";
+
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+
+
 export function ShareItem({
     setOpen,
 }: {
@@ -39,10 +54,20 @@ export function ShareItemModal({
     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
 
-    console.log("ShareItemModal open:", open);
+    const daysToHours = (d: number) => (d * 24).toString();
+
     const [shareSuccess, setShareSuccess] = useState(false);
     
     const [expiration, setExpiration] = useState("24");
+
+    const expirationItems = [
+        { label: "1 hour", value: "1"},
+        { label: "1 day", value: daysToHours(1).toString()},
+        { label: "7 days", value: daysToHours(7)},
+        { label: "30 hour", value: daysToHours(30)},
+        { label: "Never", value: "never"},
+    ]
+    
     const [permission, setPermission] = useState<"view" | "edit">("view");
 
     const handleCreateLink = () => {
@@ -71,28 +96,26 @@ export function ShareItemModal({
                 </AlertDialogHeader>
 
                 <div className="space-y-6 py-4">
-                    {/* Link expiration */}
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">
-                            Link expiration
-                        </label>
+    
+                        <Field>
+                            <FieldLabel className="font-medium">Link expiration</FieldLabel>
 
-                        <select
-                            value={expiration}
-                            onChange={(event) =>
-                                setExpiration(event.target.value)
-                            }
-                            className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-                        >
-                            <option value="1">1 hour</option>
-                            <option value="24">1 day</option>
-                            <option value="168">7 days</option>
-                            <option value="720">30 days</option>
-                            <option value="never">Never</option>
-                        </select>
-                    </div>
+                            <Select items={expirationItems} value={expiration} onValueChange={(value) => { if (value) setExpiration(value);}}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select expiration"/>
+                                </SelectTrigger>
 
-                    {/* Permissions */}
+                                <SelectContent>
+                                    <SelectGroup>
+                                        {expirationItems.map((expiration) =>(
+                                            <SelectItem key={expiration.value} value={expiration.value}>{expiration.label}</SelectItem>
+                                        ))}
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                            
+                        </Field>
+
                     <div className="space-y-3">
 <label className="text-sm font-medium">
                             Permissions
