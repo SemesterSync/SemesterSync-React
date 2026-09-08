@@ -11,7 +11,155 @@ import {
 } from "@/db/schemas/instructors";
 import { roomTable } from "@/db/schemas/rooms";
 import { termTable } from "@/db/schemas/terms";
-import type { AssembledCourse, CourseResponse } from "@/types/courses";
+import type { DaysOfWeek } from "@/schemas/util";
+import type {
+	AssembledCourse,
+	CourseResponse,
+	RevisedCourseResponse,
+	RevisedMeetingResponse,
+	RevisedSectionResponse,
+} from "@/types/courses";
+
+export async function getAllCourses(): Promise<RevisedCourseResponse[]> {
+	try {
+		const data = await db.select().from(courseTable);
+
+		return data.map((course) => ({
+			id: String(course.course_id),
+			code: course.course_code,
+			title: course.course_title,
+			credits: parseFloat(course.credits),
+		}));
+	} catch (error) {
+		console.error(error);
+
+		return [];
+	}
+}
+
+export async function getAllSections(): Promise<RevisedSectionResponse[]> {
+	try {
+		const data = await db
+			.select()
+			.from(sectionTable)
+			.leftJoin(
+				primaryInstructorsTable,
+				eq(
+					sectionTable.primary_instructor_id,
+					primaryInstructorsTable.instructor_id,
+				),
+			)
+			.leftJoin(
+				secondaryInstructorsTable,
+				eq(
+					sectionTable.secondary_instructor_id,
+					secondaryInstructorsTable.instructor_id,
+				),
+			);
+
+		return data.map((section) => ({
+			id: String(section.sections.section_id),
+			termId: String(section.sections.term_id),
+			courseId: String(section.sections.course_id),
+			primaryInstructorId: section.instructors
+				? {
+						id: String(section.instructors.instructor_id),
+						firstName: section.instructors.instructor_name
+							.split(",")[1]
+							?.trim(),
+						lastName: section.instructors.instructor_name.split(",")[0]?.trim(),
+					}
+				: null,
+			secondaryInstructorId: section.secondary
+				? {
+						id: String(section.secondary.instructor_id),
+						firstName: section.secondary.instructor_name.split(",")[1]?.trim(),
+						lastName: section.secondary.instructor_name.split(",")[0]?.trim(),
+					}
+				: null,
+			code: section.sections.section_code,
+			startDate: section.sections.start_date,
+			endDate: section.sections.end_date,
+			deliveryMethod: section.sections.delivery_method,
+			courseAttribute: section.sections.course_attribute,
+			classComments: section.sections.class_comments,
+			seatsAvailable: parseInt(
+				section.sections.avail_seats.split(" of ")[0],
+				10,
+			),
+			seatsTotal: parseInt(section.sections.avail_seats.split(" of ")[1], 10),
+		}));
+	} catch (error) {
+		console.error(error);
+
+		return [];
+	}
+}
+
+export async function getAllMeetings(): Promise<RevisedMeetingResponse[]> {
+	try {
+		const data = await db
+			.select()
+			.from(meetingTable)
+			.leftJoin(
+				primaryInstructorsTable,
+				eq(
+					meetingTable.primary_instructor_id,
+					primaryInstructorsTable.instructor_id,
+				),
+			)
+			.leftJoin(
+				secondaryInstructorsTable,
+				eq(
+					meetingTable.secondary_instructor_id,
+					secondaryInstructorsTable.instructor_id,
+				),
+			)
+			.leftJoin(roomTable, eq(meetingTable.room_id, roomTable.room_id))
+			.leftJoin(
+				buildingTable,
+				eq(meetingTable.building_id, buildingTable.building_id),
+			);
+
+		return data.map((meeting) => ({
+			id: String(meeting.meetings.meeting_id),
+			sectionId: String(meeting.meetings.section_id),
+
+			day: meeting.meetings.day as DaysOfWeek,
+			startTime: new Date(`2026-09-08T${meeting.meetings.start_time}`),
+			endTime: new Date(`2026-09-08T${meeting.meetings.end_time}`),
+			campus: meeting.meetings.location,
+			primaryInstructor: meeting.instructors
+				? {
+						id: String(meeting.instructors.instructor_id),
+						firstName: meeting.instructors.instructor_name
+							.split(",")[1]
+							?.trim(),
+						lastName: meeting.instructors.instructor_name.split(",")[0]?.trim(),
+					}
+				: null,
+			secondaryInstructor: meeting.secondary
+				? {
+						id: String(meeting.secondary.instructor_id),
+						firstName: meeting.secondary.instructor_name.split(",")[1]?.trim(),
+						lastName: meeting.secondary.instructor_name.split(",")[0]?.trim(),
+					}
+				: null,
+
+			building: meeting.buildings
+				? {
+						id: String(meeting.buildings.building_id),
+						name: meeting.buildings.building_name,
+						abbrev: meeting.buildings.building_abbrev,
+					}
+				: null,
+			room: meeting.rooms ? meeting.rooms.room : null,
+		}));
+	} catch (error) {
+		console.error(error);
+		return [];
+	}
+}
 
 export async function getAllCoursesWithMeetings(): Promise<CourseResponse> {
 	try {
