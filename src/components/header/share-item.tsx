@@ -32,6 +32,9 @@ import {
   SelectValue,
 } from "../ui/select";
 
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
+import { Label } from "../ui/label";
+
 
 export function ShareItem({
     setOpen,
@@ -116,60 +119,46 @@ export function ShareItemModal({
                             
                         </Field>
 
-                    <div className="space-y-3">
-<label className="text-sm font-medium">
-                            Permissions
-                        </label>
+                        <Field>
+                            <FieldLabel className="font-medium">Permissions</FieldLabel>
 
-                        <label className="flex cursor-pointer items-start gap-3 rounded-lg border p-3">
-                            <input
-                                type="radio"
-                                name="permission"
-                                value="view"
-                                checked={permission === "view"}
-                                onChange={(event) =>
-                                    setPermission(event.target.value as "view" | "edit")
-                                }
-                                className="mt-1"
-                            />
+                            <RadioGroup
+                                value={permission}
+                                onValueChange={(value) => {
+                                    if (value === "view" || value === "edit") {
+                                        setPermission(value);
+                                    }
+                                }}
+                            >
+                                <label className="flex cursor-pointer items-start gap-3 rounded-lg border p-3" htmlFor="view">
+                                    <RadioGroupItem value="view" className="mt-1" id="view" />
 
-                            <div>
-                                <p className="text-sm font-medium">
-                                    View only
-                                </p>
+                                    <div>
+                                        <p className="text-sm font-medium">
+                                            View only
+                                        </p>
+                                        <p className="text-sm text-muted-foreground">
+                                            People can view your schedule but cannot
+                                            make changes.
+                                        </p>
+                                    </div>
+                                </label>
 
-                                <p className="text-sm text-muted-foreground">
-                                    People can view your schedule but cannot
-                                    make changes.
-                                </p>
-                            </div>
-                        </label>
+                                <label className="flex cursor-pointer items-start gap-3 rounded-lg border p-3" htmlFor="edit">
+                                    <RadioGroupItem value="edit" className="mt-1" id="edit" />
 
-                        <label className="flex cursor-pointer items-start gap-3 rounded-lg border p-3">
-                            <input
-                                type="radio"
-                                name="permission"
-                                value="edit"
-                                checked={permission === "edit"}
-                                onChange={(event) =>
-                                    setPermission(event.target.value as "view" | "edit")
-                                }
-                                className="mt-1"
-                            />
-
-                            <div>
-                                <p className="text-sm font-medium">
-                                    Can edit
-                                </p>
-
-                                <p className="text-sm text-muted-foreground">
-                                    People can make changes to the shared
-                                    schedule.
-                                </p>
-                            </div>
-                        </label>
+                                    <div>
+                                        <p className="text-sm font-medium">
+                                            View and edit
+                                        </p>
+                                        <p className="text-sm text-muted-foreground">
+                                            People can view and edit your schedule.
+                                        </p>
+                                    </div>
+                                </label>
+                            </RadioGroup>
+                        </Field>
                     </div>
-                </div>
 
                 <AlertDialogFooter>
                     <AlertDialogCancel>
