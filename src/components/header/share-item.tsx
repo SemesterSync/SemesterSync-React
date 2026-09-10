@@ -146,12 +146,14 @@ export function ShareItemModal({
                                         <span className="font-medium text-foreground">
                                             {expiration === "never"
                                                 ? "Never"
-                                                : expiration === "1hour"
+                                                : expiration === "1"
                                                 ? "1 hour"
-                                                : expiration === "1day"
+                                                : expiration === "24"
                                                 ? "1 day"
-                                                : expiration === "7days"
+                                                : expiration === "168"
                                                 ? "7 days"
+                                                : expiration === "720"
+                                                ? "30 days"
                                                 : expiration}
                                         </span>
                                     </span>
