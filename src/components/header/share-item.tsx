@@ -71,7 +71,7 @@ export function ShareItemModal({
         { label: "1 hour", value: "1"},
         { label: "1 day", value: daysToHours(1).toString()},
         { label: "7 days", value: daysToHours(7)},
-        { label: "30 hour", value: daysToHours(30)},
+        { label: "30 days", value: daysToHours(30)},
         { label: "Never", value: "never"},
     ]
     
