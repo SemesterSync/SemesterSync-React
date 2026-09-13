@@ -87,8 +87,8 @@ export interface RevisedSectionResponse {
 	id: string;
 	termId: string;
 	courseId: string;
-	primaryInstructorId: RevisedInstructorResponse | null;
-	secondaryInstructorId: RevisedInstructorResponse | null;
+	primaryInstructor: RevisedInstructorResponse | null;
+	secondaryInstructor: RevisedInstructorResponse | null;
 
 	code: string;
 	startDate: Date;

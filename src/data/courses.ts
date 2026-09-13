@@ -61,7 +61,7 @@ export async function getAllSections(): Promise<RevisedSectionResponse[]> {
 			id: String(section.sections.section_id),
 			termId: String(section.sections.term_id),
 			courseId: String(section.sections.course_id),
-			primaryInstructorId: section.instructors
+			primaryInstructor: section.instructors
 				? {
 						id: String(section.instructors.instructor_id),
 						firstName: section.instructors.instructor_name
@@ -70,7 +70,7 @@ export async function getAllSections(): Promise<RevisedSectionResponse[]> {
 						lastName: section.instructors.instructor_name.split(",")[0]?.trim(),
 					}
 				: null,
-			secondaryInstructorId: section.secondary
+			secondaryInstructor: section.secondary
 				? {
 						id: String(section.secondary.instructor_id),
 						firstName: section.secondary.instructor_name.split(",")[1]?.trim(),
