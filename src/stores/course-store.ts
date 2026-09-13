@@ -21,6 +21,8 @@ const useCourseStore = create<CourseStore>((set, get) => ({
 	setTerms: (terms: Array<RevisedTermResponse>) => set({ terms }),
 	getTerms: () => get().terms,
 	getTerm: (termId: string) => get().terms.find((term) => term.id === termId),
+	getTermByCode: (termCode: string) =>
+		get().terms.find((term) => term.code === termCode),
 
 	// --- Courses ---
 	setCourses: (courses: Array<RevisedCourseResponse>) => set({ courses }),

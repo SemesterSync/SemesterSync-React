@@ -16,6 +16,7 @@ export interface CourseStoreActions {
 	setTerms: (terms: Array<RevisedTermResponse>) => void;
 	getTerms: () => Array<RevisedTermResponse>;
 	getTerm: (termId: string) => RevisedTermResponse | undefined;
+	getTermByCode: (termCode: string) => RevisedTermResponse | undefined;
 
 	setCourses: (courses: Array<RevisedCourseResponse>) => void;
 	getCourses: () => Array<RevisedCourseResponse>;
