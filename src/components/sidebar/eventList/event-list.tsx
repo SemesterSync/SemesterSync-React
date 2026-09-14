@@ -167,7 +167,6 @@ function ClassCard({ data }: { data: EventListCardData }) {
 				/>
 
 				<EditColorModal
-					courses={{ a: [] }}
 					eventId={data.eventId}
 					trigger={
 						<Tooltip>
