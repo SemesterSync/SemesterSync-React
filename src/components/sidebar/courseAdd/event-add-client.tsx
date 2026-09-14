@@ -146,8 +146,6 @@ export default function EventAddModalClient({
 
 							{selectedOption === "manual" && (
 								<EventAddUnlinked
-									terms={termsRes}
-									courses={courses}
 									setSelectedOption={setSelectedOption}
 									closeParentModal={setModalContentShown}
 								/>
