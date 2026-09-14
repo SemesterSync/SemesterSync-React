@@ -66,18 +66,12 @@ export default function EditColorModal({
 	const [meetings, setMeetings] = useState<Array<MeetingResponse>>([]);
 
 	useEffect(() => {
-		console.log("eventData", eventData);
 		if (eventData && eventData.kind === "linked-course") {
 			const course = getCourse(eventData.courseId.toString());
-			console.log("course", course);
 			if (!course) return;
 			const section = getSection(eventData.sectionId.toString());
-			console.log("section", section);
 			if (!section) return;
 			const meetings = getMeetings(eventData.sectionId.toString());
-			console.log("meetings", meetings);
-
-			console.log("info", course, section, meetings);
 
 			setCourseData(course);
 			setSectionData(section);
@@ -86,8 +80,6 @@ export default function EditColorModal({
 	}, [eventData, getCourse, getSection, getMeetings]);
 
 	if (!eventData) return null;
-
-	console.log(eventData, courseData, sectionData, meetings);
 
 	return (
 		<AlertDialog open={open} onOpenChange={onOpenChange}>
