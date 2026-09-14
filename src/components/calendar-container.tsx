@@ -9,9 +9,9 @@ import type { Event } from "@/schemas/events";
 import useCourseStore from "@/stores/course-store";
 import useUserStore from "@/stores/user-store";
 import type {
-	RevisedCourseResponse,
-	RevisedMeetingResponse,
-	RevisedSectionResponse,
+	CourseResponse,
+	MeetingResponse,
+	SectionResponse,
 } from "@/types/courses";
 import type { CalendarCard, CalendarCards } from "@/types/events";
 import { CalendarCardUI } from "./events/calendar-card";
@@ -408,9 +408,9 @@ function formatHourPair(hour: number) {
 function structureEventCards(
 	events: Array<Event>,
 	activeTerm: string,
-	getCourse: (courseId: string) => RevisedCourseResponse | undefined,
-	getSection: (sectionId: string) => RevisedSectionResponse | undefined,
-	getMeetings: (sectionId: string) => Array<RevisedMeetingResponse>,
+	getCourse: (courseId: string) => CourseResponse | undefined,
+	getSection: (sectionId: string) => SectionResponse | undefined,
+	getMeetings: (sectionId: string) => Array<MeetingResponse>,
 ) {
 	const structuredEvents: CalendarCards = [];
 

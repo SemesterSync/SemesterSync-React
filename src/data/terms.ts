@@ -2,9 +2,9 @@ import "server-only";
 
 import { db } from "@/db/connection";
 import { termTable } from "@/db/schemas/terms";
-import type { RevisedTermResponse } from "@/types/courses";
+import type { TermResponse } from "@/types/courses";
 
-export async function getAllTerms(): Promise<RevisedTermResponse[]> {
+export async function getAllTerms(): Promise<TermResponse[]> {
 	try {
 		const data = await db.select().from(termTable);
 

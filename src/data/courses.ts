@@ -12,12 +12,12 @@ import {
 import { roomTable } from "@/db/schemas/rooms";
 import type { DaysOfWeek } from "@/schemas/util";
 import type {
-	RevisedCourseResponse,
-	RevisedMeetingResponse,
-	RevisedSectionResponse,
+	CourseResponse,
+	MeetingResponse,
+	SectionResponse,
 } from "@/types/courses";
 
-export async function getAllCourses(): Promise<RevisedCourseResponse[]> {
+export async function getAllCourses(): Promise<CourseResponse[]> {
 	try {
 		const data = await db.select().from(courseTable);
 
@@ -34,7 +34,7 @@ export async function getAllCourses(): Promise<RevisedCourseResponse[]> {
 	}
 }
 
-export async function getAllSections(): Promise<RevisedSectionResponse[]> {
+export async function getAllSections(): Promise<SectionResponse[]> {
 	try {
 		const data = await db
 			.select()
@@ -93,7 +93,7 @@ export async function getAllSections(): Promise<RevisedSectionResponse[]> {
 	}
 }
 
-export async function getAllMeetings(): Promise<RevisedMeetingResponse[]> {
+export async function getAllMeetings(): Promise<MeetingResponse[]> {
 	try {
 		const data = await db
 			.select()

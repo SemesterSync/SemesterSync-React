@@ -26,7 +26,7 @@ import {
 } from "@/schemas/unlinked-event";
 import useCourseStore from "@/stores/course-store";
 import useUserStore from "@/stores/user-store";
-import type { RevisedSectionResponse } from "@/types/courses";
+import type { SectionResponse } from "@/types/courses";
 import CourseAddList, { mergeMeetings } from "./course-add-list";
 
 type EventAddUnlinkedProps = {
@@ -40,7 +40,7 @@ const EventAddUnlinked = forwardRef<HTMLDivElement, EventAddUnlinkedProps>(
 		const getMeetings = useCourseStore((state) => state.getMeetings);
 
 		const [selectedSection, setSelectedSection] = useState<
-			Array<RevisedSectionResponse>
+			Array<SectionResponse>
 		>([]);
 		const [initialDate] = useState(() => new Date());
 		const [isResetModalOpen, setIsResetModalOpen] = useState(false);

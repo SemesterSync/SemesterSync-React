@@ -2,17 +2,17 @@
 
 import useCourseStore from "@/stores/course-store";
 import type {
-	RevisedCourseResponse,
-	RevisedMeetingResponse,
-	RevisedSectionResponse,
-	RevisedTermResponse,
+	CourseResponse,
+	MeetingResponse,
+	SectionResponse,
+	TermResponse,
 } from "@/types/courses";
 
 interface DataProviderProps {
-	terms: Array<RevisedTermResponse>;
-	courses: Array<RevisedCourseResponse>;
-	sections: Array<RevisedSectionResponse>;
-	meetings: Array<RevisedMeetingResponse>;
+	terms: Array<TermResponse>;
+	courses: Array<CourseResponse>;
+	sections: Array<SectionResponse>;
+	meetings: Array<MeetingResponse>;
 }
 
 export default function DataProvider({

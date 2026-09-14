@@ -10,7 +10,7 @@ import {
 import { toast } from "@/components/ui/toast";
 import useCourseStore from "@/stores/course-store";
 import useUserStore from "@/stores/user-store";
-import type { RevisedSectionResponse } from "@/types/courses";
+import type { SectionResponse } from "@/types/courses";
 
 type EditLinkedEventProps = {
 	eventId: string;
@@ -33,7 +33,7 @@ export default function EditLinkedEvent({
 	const getCourse = useCourseStore((state) => state.getCourse);
 
 	const [selectedSection, setSelectedSection] = useState<
-		Array<RevisedSectionResponse>
+		Array<SectionResponse>
 	>([]);
 
 	useEffect(() => {

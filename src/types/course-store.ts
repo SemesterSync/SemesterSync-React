@@ -1,36 +1,36 @@
 import type {
-	RevisedCourseResponse,
-	RevisedMeetingResponse,
-	RevisedSectionResponse,
-	RevisedTermResponse,
+	CourseResponse,
+	MeetingResponse,
+	SectionResponse,
+	TermResponse,
 } from "./courses";
 
 export interface CourseStoreState {
-	terms: Array<RevisedTermResponse>;
-	courses: Array<RevisedCourseResponse>;
-	sections: Array<RevisedSectionResponse>;
-	meetings: Array<RevisedMeetingResponse>;
+	terms: Array<TermResponse>;
+	courses: Array<CourseResponse>;
+	sections: Array<SectionResponse>;
+	meetings: Array<MeetingResponse>;
 }
 
 export interface CourseStoreActions {
-	setTerms: (terms: Array<RevisedTermResponse>) => void;
-	getTerms: () => Array<RevisedTermResponse>;
-	getTerm: (termId: string) => RevisedTermResponse | undefined;
-	getTermByCode: (termCode: string) => RevisedTermResponse | undefined;
+	setTerms: (terms: Array<TermResponse>) => void;
+	getTerms: () => Array<TermResponse>;
+	getTerm: (termId: string) => TermResponse | undefined;
+	getTermByCode: (termCode: string) => TermResponse | undefined;
 
-	setCourses: (courses: Array<RevisedCourseResponse>) => void;
-	getCourses: () => Array<RevisedCourseResponse>;
-	getCoursesByTerm: (termId: string) => Array<RevisedCourseResponse>;
-	getCoursesByTermCode: (termCode: string) => Array<RevisedCourseResponse>;
-	getCourse(courseId: string): RevisedCourseResponse | undefined;
+	setCourses: (courses: Array<CourseResponse>) => void;
+	getCourses: () => Array<CourseResponse>;
+	getCoursesByTerm: (termId: string) => Array<CourseResponse>;
+	getCoursesByTermCode: (termCode: string) => Array<CourseResponse>;
+	getCourse(courseId: string): CourseResponse | undefined;
 
-	setSections: (sections: Array<RevisedSectionResponse>) => void;
-	getSectionsByCourseId: (courseId: string) => Array<RevisedSectionResponse>;
-	getSection(sectionId: string): RevisedSectionResponse | undefined;
+	setSections: (sections: Array<SectionResponse>) => void;
+	getSectionsByCourseId: (courseId: string) => Array<SectionResponse>;
+	getSection(sectionId: string): SectionResponse | undefined;
 
-	setMeetings: (meeting: Array<RevisedMeetingResponse>) => void;
-	getMeetings: (sectionId: string) => Array<RevisedMeetingResponse>;
-	getMeeting: (meetingId: string) => RevisedMeetingResponse | undefined;
+	setMeetings: (meeting: Array<MeetingResponse>) => void;
+	getMeetings: (sectionId: string) => Array<MeetingResponse>;
+	getMeeting: (meetingId: string) => MeetingResponse | undefined;
 }
 
 export type CourseStore = CourseStoreState & CourseStoreActions;

@@ -1,20 +1,20 @@
 import type { DaysOfWeek } from "@/schemas/util";
 
-export interface RevisedInstructorResponse {
+export interface InstructorResponse {
 	id: string;
 
 	firstName: string;
 	lastName: string;
 }
 
-export interface RevisedTermResponse {
+export interface TermResponse {
 	id: string;
 
 	name: string;
 	code: string;
 }
 
-export interface RevisedCourseResponse {
+export interface CourseResponse {
 	id: string;
 
 	code: string;
@@ -22,12 +22,12 @@ export interface RevisedCourseResponse {
 	credits: number;
 }
 
-export interface RevisedSectionResponse {
+export interface SectionResponse {
 	id: string;
 	termId: string;
 	courseId: string;
-	primaryInstructor: RevisedInstructorResponse | null;
-	secondaryInstructor: RevisedInstructorResponse | null;
+	primaryInstructor: InstructorResponse | null;
+	secondaryInstructor: InstructorResponse | null;
 
 	code: string;
 	startDate: Date;
@@ -39,13 +39,13 @@ export interface RevisedSectionResponse {
 	seatsTotal: number;
 }
 
-export interface RevisedBuildingResponse {
+export interface BuildingResponse {
 	id: string;
 	name: string;
 	abbrev: string | null;
 }
 
-export interface RevisedMeetingResponse {
+export interface MeetingResponse {
 	id: string;
 	sectionId: string;
 
@@ -53,9 +53,9 @@ export interface RevisedMeetingResponse {
 	startTime: Date;
 	endTime: Date;
 	campus: string;
-	primaryInstructor: RevisedInstructorResponse | null;
-	secondaryInstructor: RevisedInstructorResponse | null;
+	primaryInstructor: InstructorResponse | null;
+	secondaryInstructor: InstructorResponse | null;
 
-	building: RevisedBuildingResponse | null;
+	building: BuildingResponse | null;
 	room: string | null;
 }

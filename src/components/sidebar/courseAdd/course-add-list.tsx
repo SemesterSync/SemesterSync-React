@@ -21,15 +21,15 @@ import { cn } from "@/lib/utils";
 import useCourseStore from "@/stores/course-store";
 import useUserStore from "@/stores/user-store";
 import type {
-	RevisedCourseResponse,
-	RevisedMeetingResponse,
-	RevisedSectionResponse,
+	CourseResponse,
+	MeetingResponse,
+	SectionResponse,
 } from "@/types/courses";
 
 type CourseAddListProps = {
-	selectedSection: Array<RevisedSectionResponse>;
+	selectedSection: Array<SectionResponse>;
 	setSelectedSection: React.Dispatch<
-		React.SetStateAction<Array<RevisedSectionResponse>>
+		React.SetStateAction<Array<SectionResponse>>
 	>;
 	multiple?: boolean;
 	selectedAtTop?: boolean;
@@ -49,16 +49,16 @@ export default function CourseAddList({
 		() => getCourses(selectedTerm),
 		[selectedTerm, getCourses],
 	);
-	const [sections, setSections] = useState<Array<RevisedSectionResponse>>([]);
+	const [sections, setSections] = useState<Array<SectionResponse>>([]);
 
 	const shouldReduceMotion = useReducedMotion();
 	const swipeLeftVariant = crateSwipeLeftVariant(shouldReduceMotion);
 	const swipeRightVariant = createSwipeRightVariant(shouldReduceMotion);
 
 	const [searchQuery, setSearchQuery] = useState("");
-	const [filteredCourses, setFilteredCourses] = useState<
-		Array<RevisedCourseResponse>
-	>([]);
+	const [filteredCourses, setFilteredCourses] = useState<Array<CourseResponse>>(
+		[],
+	);
 
 	const [showingCourses, setShowingCourses] = useState(true);
 	const [showCourseSectionId, setShowCourseSectionId] = useState("-1");
@@ -393,11 +393,7 @@ export default function CourseAddList({
 	);
 }
 
-export function MeetingsDisplay({
-	section,
-}: {
-	section: RevisedSectionResponse;
-}) {
+export function MeetingsDisplay({ section }: { section: SectionResponse }) {
 	const getMeetings = useCourseStore((state) => state.getMeetings);
 	const meetings = getMeetings(section.id);
 
@@ -483,9 +479,9 @@ export function MeetingsDisplay({
 	));
 }
 
-export function mergeMeetings(meetings: Array<RevisedMeetingResponse>) {
+export function mergeMeetings(meetings: Array<MeetingResponse>) {
 	const meetingsByTime: Array<
-		Omit<RevisedMeetingResponse, "day"> & {
+		Omit<MeetingResponse, "day"> & {
 			days: Array<string>;
 			instructors: Array<string>;
 		}

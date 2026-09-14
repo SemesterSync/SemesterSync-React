@@ -22,9 +22,9 @@ import { defaultColors, mergeMeetings } from "@/lib/utils";
 import useCourseStore from "@/stores/course-store";
 import useUserStore from "@/stores/user-store";
 import type {
-	RevisedCourseResponse,
-	RevisedMeetingResponse,
-	RevisedSectionResponse,
+	CourseResponse,
+	MeetingResponse,
+	SectionResponse,
 } from "@/types/courses";
 
 type EditColorModalProps = {
@@ -61,9 +61,9 @@ export default function EditColorModal({
 	const [selectedColor, setSelectedColor] = useState(
 		eventData ? eventData.color : "#4285F4",
 	);
-	const [courseData, setCourseData] = useState<RevisedCourseResponse>();
-	const [sectionData, setSectionData] = useState<RevisedSectionResponse>();
-	const [meetings, setMeetings] = useState<Array<RevisedMeetingResponse>>([]);
+	const [courseData, setCourseData] = useState<CourseResponse>();
+	const [sectionData, setSectionData] = useState<SectionResponse>();
+	const [meetings, setMeetings] = useState<Array<MeetingResponse>>([]);
 
 	useEffect(() => {
 		console.log("eventData", eventData);

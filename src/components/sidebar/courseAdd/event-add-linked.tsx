@@ -23,7 +23,7 @@ import { createSwipeRightVariant, TRANSITION } from "@/lib/animation";
 import { cn } from "@/lib/utils";
 import useCourseStore from "@/stores/course-store";
 import useUserStore from "@/stores/user-store";
-import type { RevisedSectionResponse } from "@/types/courses";
+import type { SectionResponse } from "@/types/courses";
 import CourseAddList, { MeetingsDisplay } from "./course-add-list";
 
 type EventAddLinkedProps = {
@@ -40,7 +40,7 @@ const EventAddLinked = forwardRef<HTMLDivElement, EventAddLinkedProps>(
 		const getCourse = useCourseStore((state) => state.getCourse);
 
 		const [selectedSection, setSelectedSection] = useState<
-			Array<RevisedSectionResponse>
+			Array<SectionResponse>
 		>([]);
 		const [selectedColor, setSelectedColor] = useState<string>("#4285F4");
 		const [isResetModalOpen, setIsResetModalOpen] = useState(false);
