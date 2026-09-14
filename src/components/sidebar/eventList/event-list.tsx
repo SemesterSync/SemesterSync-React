@@ -148,8 +148,6 @@ function ClassCard({ data }: { data: EventListCardData }) {
 			>
 				<EditEventModal
 					eventId={data.eventId}
-					terms={[]}
-					courses={{ a: [] }}
 					trigger={
 						<Tooltip>
 							<AlertDialogTrigger
