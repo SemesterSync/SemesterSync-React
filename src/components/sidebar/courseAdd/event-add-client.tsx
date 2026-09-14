@@ -17,7 +17,6 @@ import type { TermResponse } from "@/data/terms";
 import { crateSwipeLeftVariant, TRANSITION } from "@/lib/animation";
 import { cn } from "@/lib/utils";
 import useUserStore from "@/stores/user-store";
-import type { CourseResponse } from "@/types/courses";
 import EventAddLinked from "./event-add-linked";
 import EventAddPersonal from "./event-add-personal";
 import EventAddUnlinked from "./event-add-unlinked";
@@ -48,10 +47,8 @@ const selectOptions = [
 
 export default function EventAddModalClient({
 	termsRes,
-	courses,
 }: {
 	termsRes: TermResponse;
-	courses: CourseResponse;
 }) {
 	const activeTerm = useUserStore((state) => state.activeTerm);
 

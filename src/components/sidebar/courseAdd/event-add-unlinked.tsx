@@ -245,7 +245,7 @@ const EventAddUnlinked = forwardRef<HTMLDivElement, EventAddUnlinkedProps>(
 							form.handleSubmit();
 						}}
 					>
-						<UnlinkedEventFormFields form={form} terms={[]} />
+						<UnlinkedEventFormFields form={form} />
 
 						<Separator className="my-2" />
 
