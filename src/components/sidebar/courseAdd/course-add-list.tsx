@@ -2,7 +2,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import clsx from "clsx";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { Fragment, useCallback, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -18,33 +18,38 @@ import {
 	TRANSITION,
 } from "@/lib/animation";
 import { cn } from "@/lib/utils";
+import useCourseStore from "@/stores/course-store";
 import useUserStore from "@/stores/user-store";
 import type {
-	AssembledCourse,
-	AssembledCourseSingleSection,
-	CourseResponse,
-	Meeting,
-	Section,
+	RevisedCourseResponse,
+	RevisedMeetingResponse,
+	RevisedSectionResponse,
 } from "@/types/courses";
 
 type CourseAddListProps = {
-	courses: CourseResponse;
-	selectedCourse: Array<AssembledCourseSingleSection>;
-	setSelectedCourse: React.Dispatch<
-		React.SetStateAction<Array<AssembledCourseSingleSection>>
+	selectedSection: Array<RevisedSectionResponse>;
+	setSelectedSection: React.Dispatch<
+		React.SetStateAction<Array<RevisedSectionResponse>>
 	>;
 	multiple?: boolean;
 	selectedAtTop?: boolean;
 };
 
 export default function CourseAddList({
-	courses,
-	selectedCourse: externalSelectedCourse,
-	setSelectedCourse: setExternalSelectedCourse,
+	selectedSection: externalSelectedSection,
+	setSelectedSection: setExternalSelectedSection,
 	multiple = false,
 	selectedAtTop = false,
 }: CourseAddListProps) {
 	const selectedTerm = useUserStore((state) => state.activeTerm);
+
+	const getCourses = useCourseStore((state) => state.getCoursesByTermCode);
+	const getSections = useCourseStore((state) => state.getSectionsByCourseId);
+	const nCourses = useMemo(
+		() => getCourses(selectedTerm),
+		[selectedTerm, getCourses],
+	);
+	const [sections, setSections] = useState<Array<RevisedSectionResponse>>([]);
 
 	const shouldReduceMotion = useReducedMotion();
 	const swipeLeftVariant = crateSwipeLeftVariant(shouldReduceMotion);
@@ -52,27 +57,30 @@ export default function CourseAddList({
 
 	const [searchQuery, setSearchQuery] = useState("");
 	const [filteredCourses, setFilteredCourses] = useState<
-		Array<AssembledCourse>
+		Array<RevisedCourseResponse>
 	>([]);
 
-	const [coursesByTerm, setCoursesByTerm] = useState<Array<AssembledCourse>>(
-		[],
-	);
 	const [showingCourses, setShowingCourses] = useState(true);
+	const [showCourseSectionId, setShowCourseSectionId] = useState("-1");
+	const [selectedCourse, setSelectedCourse] = useState<Array<string>>([]);
+	const [selectedSection, setSelectedSection] = useState<Array<string>>([]);
 
-	const [showCourseSectionId, setShowCourseSectionId] = useState(-1);
-	const [selectedCourse, setSelectedCourse] = useState<Array<number>>([]);
-	const [selectedSection, setSelectedSection] = useState<Array<number>>([]);
+	useEffect(
+		() => setSections(getSections(showCourseSectionId)),
+		[getSections, showCourseSectionId],
+	);
+
+	// useEffect(() => {
+	// 	if (typeof courses === "number") return;
+
+	// 	setCoursesByTerm(courses[selectedTerm] || []);
+	// 	setFilteredCourses(courses[selectedTerm] || []);
+	// }, [selectedTerm, courses]);
+
+	console.log(sections);
 
 	useEffect(() => {
-		if (typeof courses === "number") return;
-
-		setCoursesByTerm(courses[selectedTerm] || []);
-		setFilteredCourses(courses[selectedTerm] || []);
-	}, [selectedTerm, courses]);
-
-	useEffect(() => {
-		if (searchQuery === "") setFilteredCourses(coursesByTerm);
+		if (searchQuery === "") setFilteredCourses(nCourses);
 
 		let simplifiedQuery = searchQuery.toLowerCase();
 		const isSearchingForSelected = searchQuery
@@ -80,30 +88,27 @@ export default function CourseAddList({
 			.includes("@selected");
 		simplifiedQuery = simplifiedQuery.replace("@selected", "").trim();
 
-		let filteredCourses = coursesByTerm;
+		let filteredCourses = nCourses;
 
 		if (isSearchingForSelected) {
 			filteredCourses = filteredCourses.filter((course) =>
-				selectedCourse.includes(course.course_id),
+				selectedCourse.includes(course.id),
 			);
 		}
 
 		filteredCourses = filteredCourses.filter(
 			(course) =>
-				course.course_title.toLowerCase().includes(simplifiedQuery) ||
-				course.course_code.toLowerCase().includes(simplifiedQuery),
+				course.title.toLowerCase().includes(simplifiedQuery) ||
+				course.code.toLowerCase().includes(simplifiedQuery),
 		);
 
 		if (selectedAtTop) {
 			filteredCourses = filteredCourses.sort((a, b) => {
-				if (
-					selectedCourse.includes(a.course_id) &&
-					!selectedCourse.includes(b.course_id)
-				) {
+				if (selectedCourse.includes(a.id) && !selectedCourse.includes(b.id)) {
 					return -1;
 				} else if (
-					!selectedCourse.includes(a.course_id) &&
-					selectedCourse.includes(b.course_id)
+					!selectedCourse.includes(a.id) &&
+					selectedCourse.includes(b.id)
 				) {
 					return 1;
 				} else {
@@ -113,26 +118,20 @@ export default function CourseAddList({
 		}
 
 		setFilteredCourses(filteredCourses);
-	}, [
-		searchQuery,
-		coursesByTerm.filter,
-		coursesByTerm,
-		selectedCourse,
-		selectedAtTop,
-	]);
+	}, [searchQuery, selectedCourse, selectedAtTop, nCourses]);
 
 	useEffect(() => {
-		const extSelectedCourses = [] as Array<number>;
-		const extSelectedSections = [] as Array<number>;
+		const extSelectedCourses = [] as Array<string>;
+		const extSelectedSections = [] as Array<string>;
 
-		externalSelectedCourse.forEach((course) => {
-			extSelectedCourses.push(course.course_id);
-			extSelectedSections.push(course.section.section_id);
+		externalSelectedSection.forEach((section) => {
+			extSelectedCourses.push(section.courseId);
+			extSelectedSections.push(section.id);
 		});
 
 		setSelectedCourse(extSelectedCourses);
 		setSelectedSection(extSelectedSections);
-	}, [externalSelectedCourse]);
+	}, [externalSelectedSection]);
 
 	const [scrollParentRef, setScrollParentRef] = useState<HTMLDivElement | null>(
 		null,
@@ -153,17 +152,10 @@ export default function CourseAddList({
 		}
 	}, []);
 
-	if (typeof courses === "number")
+	if (nCourses.length === 0)
 		return (
 			<p className="text-destructive bg-destructive/20 rounded-lg text-xs py-2 w-full text-center">
-				Error Loading Courses | NaN
-			</p>
-		);
-
-	if (coursesByTerm.length === 0)
-		return (
-			<p className="text-destructive bg-destructive/20 rounded-lg text-xs py-2 w-full text-center">
-				No classes in the selected term. Are you sure you selected one?
+				Error Loading Courses
 			</p>
 		);
 
@@ -181,7 +173,7 @@ export default function CourseAddList({
 							transition={TRANSITION}
 						>
 							<Input
-								placeholder={`Search ${coursesByTerm[0].term_name} Courses...`}
+								placeholder={`Search Courses...`} // TODO - Add back term name
 								value={searchQuery}
 								onChange={(e) => {
 									setSearchQuery(e.target.value);
@@ -207,7 +199,7 @@ export default function CourseAddList({
 									setShowingCourses(true);
 									virtualizer.scrollToIndex(
 										filteredCourses.findIndex(
-											(course) => course.course_id === showCourseSectionId,
+											(course) => course.id === showCourseSectionId,
 										) + 4,
 									);
 								}}
@@ -244,6 +236,7 @@ export default function CourseAddList({
 						>
 							{virtualItems.map((vItem) => {
 								const course = filteredCourses[vItem.index];
+								const sectionCount = getSections(course.id).length;
 
 								return (
 									<div
@@ -260,33 +253,33 @@ export default function CourseAddList({
 											data-index={vItem.index}
 											onClick={() => {
 												setShowingCourses(false);
-												setShowCourseSectionId(course.course_id);
+												setShowCourseSectionId(course.id);
 											}}
-											key={`${course.course_id}-${course.course_code}`}
+											key={`${course.id}-${course.code}`}
 											type="button"
 											className={clsx(
 												"rounded-lg border border-border p-2 flex flex-row hover:shadow gap-2 items-center justify-between cursor-pointer w-full text-left",
 												{
 													"border-success bg-success/5":
-														selectedCourse.includes(course.course_id),
+														selectedCourse.includes(course.id),
 													// "my-2": vItem.index !== 0,
 												},
 											)}
 										>
 											<div className="flex flex-col gap-2">
-												<p>{course.course_title}</p>
+												<p>{course.title}</p>
 
 												<div className="flex flex-row items-center text-muted-foreground gap-2">
-													<p>{course.course_code.replaceAll("#", "")}</p>
+													<p>{course.code.replaceAll("#", "")}</p>
 													<Separator orientation="vertical" />
 													<p>
 														{course.credits} Credit
-														{parseFloat(course.credits) > 1 && "s"}
+														{course.credits > 1 && "s"}
 													</p>
 													<Separator orientation="vertical" />
 													<p>
-														{course.sections.length} Section
-														{course.sections.length > 1 && "s"}
+														{sectionCount} Section
+														{sectionCount > 1 && "s"}
 													</p>
 												</div>
 											</div>
@@ -307,57 +300,40 @@ export default function CourseAddList({
 							variants={swipeRightVariant}
 							transition={TRANSITION}
 						>
-							{coursesByTerm
-								.find((course) => course.course_id === showCourseSectionId)
-								?.sections.sort(
-									(a, b) =>
-										parseInt(a.section_code, 10) - parseInt(b.section_code, 10),
+							{sections
+								?.sort(
+									// Sorts by code from lowest to highest
+									(a, b) => parseInt(a.code, 10) - parseInt(b.code, 10),
 								)
 								.sort((a, b) => {
-									const aSelected = selectedSection.includes(a.section_id)
-										? 1
-										: 0;
-									const bSelected = selectedSection.includes(b.section_id)
-										? 1
-										: 0;
+									// Sorts so selected is at top
+									const aSelected = selectedSection.includes(a.id) ? 1 : 0;
+									const bSelected = selectedSection.includes(b.id) ? 1 : 0;
 									return bSelected - aSelected;
 								})
 								.map((section, index) => (
 									<motion.button
 										whileTap={{ scale: shouldReduceMotion ? 1 : 0.98 }}
 										type="button"
-										key={section.section_id}
+										key={section.id}
 										onClick={() => {
 											if (
 												multiple &&
 												selectedCourse.includes(showCourseSectionId) &&
-												selectedSection.includes(section.section_id)
+												selectedSection.includes(section.id)
 											) {
-												setExternalSelectedCourse(
-													externalSelectedCourse.filter(
+												setExternalSelectedSection(
+													externalSelectedSection.filter(
 														(c) =>
-															c.course_id !== showCourseSectionId ||
-															c.section.section_id !== section.section_id,
+															c.courseId !== showCourseSectionId ||
+															c.id !== section.id,
 													),
 												);
 											} else {
-												const extCourseData = coursesByTerm.find(
-													(course) => course.course_id === showCourseSectionId,
-												);
-												if (!extCourseData) return;
-												const extCourse = {
-													course_id: extCourseData?.course_id,
-													course_code: extCourseData?.course_code,
-													course_title: extCourseData?.course_title,
-													credits: extCourseData?.credits,
-													term_code: extCourseData?.term_code,
-													term_name: extCourseData?.term_name,
-													section: section,
-												};
-												setExternalSelectedCourse(
+												setExternalSelectedSection(
 													multiple
-														? [...externalSelectedCourse, extCourse]
-														: [extCourse],
+														? [...externalSelectedSection, section]
+														: [section],
 												);
 											}
 
@@ -369,7 +345,7 @@ export default function CourseAddList({
 												{
 													"my-2": index !== 0,
 													"border-success bg-success/5":
-														selectedSection.includes(section.section_id),
+														selectedSection.includes(section.id),
 													// "border-yellow-500":
 													// 	section.seats_available / section.seats_total <
 													// 	0.5,
@@ -383,12 +359,12 @@ export default function CourseAddList({
 										<div className="flex flex-row items-center gap-2 justify-between">
 											<p>
 												<span className="text-muted-foreground">Section:</span>{" "}
-												{section.section_code}
+												{section.code}
 											</p>
 
-											{section.seats_available < 0 ? (
+											{section.seatsAvailable < 0 ? (
 												<p className="text-destructive">
-													{Math.abs(section.seats_available)}
+													{Math.abs(section.seatsAvailable)}
 													<span> on waitlist</span>
 												</p>
 											) : (
@@ -396,15 +372,15 @@ export default function CourseAddList({
 													className={cn(
 														clsx("", {
 															"text-yellow-600":
-																section.seats_available / section.seats_total <
+																section.seatsAvailable / section.seatsTotal <
 																0.5,
 															"text-destructive":
-																section.seats_available / section.seats_total <
+																section.seatsAvailable / section.seatsTotal <
 																0.25,
 														}),
 													)}
 												>
-													{section.seats_available} / {section.seats_total}{" "}
+													{section.seatsAvailable} / {section.seatsTotal}{" "}
 													<span className="text-muted-foreground">seats</span>
 												</p>
 											)}
@@ -426,10 +402,24 @@ export default function CourseAddList({
 	);
 }
 
-export function MeetingsDisplay({ section }: { section: Section }) {
-	return mergeMeetings(section.meetings).map((meeting) => (
+export function MeetingsDisplay({
+	section,
+}: {
+	section: RevisedSectionResponse;
+}) {
+	const getMeetings = useCourseStore((state) => state.getMeetings);
+	const meetings = getMeetings(section.id);
+
+	if (meetings.length === 0)
+		return (
+			<p className="text-muted-foreground">
+				This course has no meetings, this likely means the course is remote.
+			</p>
+		);
+
+	return mergeMeetings(meetings).map((meeting) => (
 		<div
-			key={`${section.section_id}-${meeting.id}`}
+			key={`${section.id}-${meeting.id}`}
 			className="border border-transparent border-b-border border-dashed pb-1 mb-1 last:border-b-0 last:pb-0 last:mb-0"
 		>
 			<div className="flex flex-row items-center gap-1">
@@ -446,27 +436,37 @@ export function MeetingsDisplay({ section }: { section: Section }) {
 						</Fragment>
 					))}
 				</p>
-				<p className="text-muted-foreground">in</p>
-				<Tooltip>
-					<TooltipTrigger render={<p />}>
-						{meeting.building.short}
-					</TooltipTrigger>
-					<TooltipContent>{meeting.building.long}</TooltipContent>
-				</Tooltip>
-				<p>{meeting.room.name}</p>
+				{meeting.building?.name === "Off Campus" ? (
+					<p>
+						<span className="text-muted-foreground">located</span> Off Campus
+					</p>
+				) : (
+					<>
+						<p className="text-muted-foreground">in</p>
+						<Tooltip>
+							<TooltipTrigger render={<p />}>
+								{meeting.building?.abbrev || "N/A"}
+							</TooltipTrigger>
+							<TooltipContent>
+								{meeting.building?.name || "Unknown Building"}
+							</TooltipContent>
+						</Tooltip>
+						<p>{meeting.room || "Unknown Room"}</p>
+					</>
+				)}
 			</div>
 
 			<div className="flex flex-row items-center gap-1">
 				<p className="text-muted-foreground">From</p>
 				<p>
-					{meeting.start_time.toLocaleTimeString("en-US", {
+					{meeting.startTime.toLocaleTimeString("en-US", {
 						hour: "2-digit",
 						minute: "2-digit",
 					})}
 				</p>
 				<p className="text-muted-foreground">to</p>
 				<p>
-					{meeting.end_time.toLocaleTimeString("en-US", {
+					{meeting.endTime.toLocaleTimeString("en-US", {
 						hour: "2-digit",
 						minute: "2-digit",
 					})}
@@ -476,66 +476,57 @@ export function MeetingsDisplay({ section }: { section: Section }) {
 			<div className="flex flex-row items-center gap-1">
 				<p className="text-muted-foreground">Instructed by </p>
 				<p>
-					{meeting.instructors
-						.map(
-							(instructor) =>
-								`${instructor.first_name} ${instructor.last_name}`,
-						)
-						.map((instructor, index) => (
-							<Fragment key={instructor}>
-								{instructor}
-								{meeting.instructors.length === 2 && index === 0 && (
-									<span> & </span>
-								)}
-								{meeting.instructors.length >= 3 &&
-									index < meeting.instructors.length - 1 && <span>, </span>}
-							</Fragment>
-						))}
+					{meeting.instructors.map((instructor, index) => (
+						<Fragment key={instructor}>
+							{instructor}
+							{meeting.instructors.length === 2 && index === 0 && (
+								<span> & </span>
+							)}
+							{meeting.instructors.length >= 3 &&
+								index < meeting.instructors.length - 1 && <span>, </span>}
+						</Fragment>
+					))}
 				</p>
 			</div>
 		</div>
 	));
 }
 
-export function mergeMeetings(meetings: Array<Meeting>) {
+export function mergeMeetings(meetings: Array<RevisedMeetingResponse>) {
 	const meetingsByTime: Array<
-		Omit<Meeting, "day" | "start_time" | "end_time"> & {
+		Omit<RevisedMeetingResponse, "day"> & {
 			days: Array<string>;
-			start_time: Date;
-			end_time: Date;
+			instructors: Array<string>;
 		}
 	> = [];
 
 	for (const meeting of meetings) {
-		const startTime = new Date(`2026-04-29T${meeting.start_time}`);
-		const endTime = new Date(`2026-04-29T${meeting.end_time}`);
-		const building = meeting.building.short;
-		const room = meeting.room.name;
-		const instructors = meeting.instructors
-			.flatMap(
-				(instructor) => `${instructor.first_name}${instructor.last_name}`,
-			)
-			.join("");
+		const building = meeting.building?.name || "Unknown Building";
+		const room = meeting.room || "Unknown Room";
+		const instructors: Array<string> = [];
+		if (meeting.primaryInstructor !== null)
+			instructors.push(
+				`${meeting.primaryInstructor.firstName} ${meeting.primaryInstructor.lastName}`,
+			);
+		if (meeting.secondaryInstructor !== null)
+			instructors.push(
+				`${meeting.secondaryInstructor.firstName} ${meeting.secondaryInstructor.lastName}`,
+			);
 
 		const meetingItem = meetingsByTime.find(
 			(findMeeting) =>
-				findMeeting.start_time.toString() === startTime.toString() &&
-				findMeeting.end_time.toString() === endTime.toString() &&
-				findMeeting.building.short === building &&
-				findMeeting.room.name === room &&
-				findMeeting.instructors
-					.flatMap(
-						(instructor) => `${instructor.first_name}${instructor.last_name}`,
-					)
-					.join("") === instructors,
+				findMeeting.startTime.toString() === meeting.startTime.toString() &&
+				findMeeting.endTime.toString() === meeting.endTime.toString() &&
+				findMeeting.building?.name === building &&
+				findMeeting.room === room &&
+				findMeeting.instructors.join("") === instructors.join(""),
 		);
 
 		if (!meetingItem) {
 			meetingsByTime.push({
 				...meeting,
+				instructors,
 				days: [meeting.day],
-				start_time: startTime,
-				end_time: endTime,
 			});
 		} else {
 			meetingItem.days.push(meeting.day);

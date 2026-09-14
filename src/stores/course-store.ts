@@ -33,15 +33,24 @@ const useCourseStore = create<CourseStore>((set, get) => ({
 				get().sections.find((section) => section.courseId === course.id)
 					?.termId === termId,
 		),
+	getCoursesByTermCode: (termCode: string) => {
+		const term = get().terms.find((term) => term.code === termCode);
+		if (!term) return [];
+		return get().courses.filter(
+			(course) =>
+				get().sections.find((section) => section.courseId === course.id)
+					?.termId === term.id,
+		);
+	},
 	getCourse: (courseId: string) =>
 		get().courses.find((course) => course.id === courseId),
 
 	// --- Sections ---
 	setSections: (sections: Array<RevisedSectionResponse>) => set({ sections }),
-	getSections: (courseId: string) =>
-		get().sections.filter((section) => section.courseId === courseId),
 	getSection: (sectionId: string) =>
 		get().sections.find((section) => section.id === sectionId),
+	getSectionsByCourseId: (courseId: string) =>
+		get().sections.filter((section) => section.courseId === courseId),
 
 	// --- Meetings ---
 	setMeetings: (meetings: Array<RevisedMeetingResponse>) => set({ meetings }),

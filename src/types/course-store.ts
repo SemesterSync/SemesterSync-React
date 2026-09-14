@@ -21,10 +21,11 @@ export interface CourseStoreActions {
 	setCourses: (courses: Array<RevisedCourseResponse>) => void;
 	getCourses: () => Array<RevisedCourseResponse>;
 	getCoursesByTerm: (termId: string) => Array<RevisedCourseResponse>;
+	getCoursesByTermCode: (termCode: string) => Array<RevisedCourseResponse>;
 	getCourse(courseId: string): RevisedCourseResponse | undefined;
 
 	setSections: (sections: Array<RevisedSectionResponse>) => void;
-	getSections: (courseId: string) => Array<RevisedSectionResponse>;
+	getSectionsByCourseId: (courseId: string) => Array<RevisedSectionResponse>;
 	getSection(sectionId: string): RevisedSectionResponse | undefined;
 
 	setMeetings: (meeting: Array<RevisedMeetingResponse>) => void;
