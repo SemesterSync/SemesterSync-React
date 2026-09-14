@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/components/ui/toast";
-import type { TermResponse } from "@/data/terms";
 import { useAppForm } from "@/hooks/use-form";
 import { createSwipeRightVariant, TRANSITION } from "@/lib/animation";
 import type { Event, PersonalEventVariantMeeting } from "@/schemas/events";
@@ -23,13 +22,12 @@ import {
 import useUserStore from "@/stores/user-store";
 
 type EventAddPersonalProps = {
-	terms: TermResponse;
 	setSelectedOption: React.Dispatch<React.SetStateAction<string>>;
 	closeParentModal: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const EventAddPersonal = forwardRef<HTMLDivElement, EventAddPersonalProps>(
-	({ terms, setSelectedOption, closeParentModal }, ref) => {
+	({ setSelectedOption, closeParentModal }, ref) => {
 		const [initialDate] = useState(() => new Date());
 		const [isBackResetModalOpen, setIsBackResetModalOpen] = useState(false);
 		const [isResetModalOpen, setIsResetModalOpen] = useState(false);
@@ -59,8 +57,6 @@ const EventAddPersonal = forwardRef<HTMLDivElement, EventAddPersonalProps>(
 			},
 			onSubmit: (values) => {
 				const formData = values.value;
-
-				if (typeof terms === "number") return;
 
 				const event: Event = {
 					eventId: uuidv4(),
@@ -98,8 +94,6 @@ const EventAddPersonal = forwardRef<HTMLDivElement, EventAddPersonalProps>(
 				setSelectedOption("none");
 			},
 		});
-
-		if (typeof terms === "number") return null;
 
 		return (
 			<motion.div
@@ -153,7 +147,7 @@ const EventAddPersonal = forwardRef<HTMLDivElement, EventAddPersonalProps>(
 							form.handleSubmit();
 						}}
 					>
-						<PersonalEventFormFields form={form} terms={terms} />
+						<PersonalEventFormFields form={form} />
 
 						<Separator className="my-2" />
 

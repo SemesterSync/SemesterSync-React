@@ -13,7 +13,6 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import type { TermResponse } from "@/data/terms";
 import { crateSwipeLeftVariant, TRANSITION } from "@/lib/animation";
 import { cn } from "@/lib/utils";
 import useUserStore from "@/stores/user-store";
@@ -45,11 +44,7 @@ const selectOptions = [
 	},
 ];
 
-export default function EventAddModalClient({
-	termsRes,
-}: {
-	termsRes: TermResponse;
-}) {
+export default function EventAddModalClient() {
 	const activeTerm = useUserStore((state) => state.activeTerm);
 
 	const [selectedOption, setSelectedOption] = useState("none");
@@ -150,7 +145,6 @@ export default function EventAddModalClient({
 
 							{selectedOption === "personal" && (
 								<EventAddPersonal
-									terms={termsRes}
 									setSelectedOption={setSelectedOption}
 									closeParentModal={setModalContentShown}
 								/>
