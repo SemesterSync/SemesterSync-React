@@ -33,6 +33,9 @@ type EventAddLinkedProps = {
 
 const EventAddLinked = forwardRef<HTMLDivElement, EventAddLinkedProps>(
 	({ setSelectedOption, closeParentModal }, ref) => {
+		const tab = useUserStore((state) => state.getActiveTab());
+		const eventAdd = useUserStore((state) => state.addEvent);
+
 		const getTerm = useCourseStore((state) => state.getTerm);
 		const getCourse = useCourseStore((state) => state.getCourse);
 
@@ -41,9 +44,6 @@ const EventAddLinked = forwardRef<HTMLDivElement, EventAddLinkedProps>(
 		>([]);
 		const [selectedColor, setSelectedColor] = useState<string>("#4285F4");
 		const [isResetModalOpen, setIsResetModalOpen] = useState(false);
-
-		const tab = useUserStore((state) => state.getActiveTab());
-		const eventAdd = useUserStore((state) => state.addEvent);
 
 		const shouldReduceMotion = useReducedMotion();
 		const swipeRightVariant = createSwipeRightVariant(shouldReduceMotion);
