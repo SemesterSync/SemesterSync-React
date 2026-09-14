@@ -8,15 +8,12 @@ import {
 	AlertDialogFooter,
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/components/ui/toast";
+import useCourseStore from "@/stores/course-store";
 import useUserStore from "@/stores/user-store";
-import type {
-	AssembledCourseSingleSection,
-	CourseResponse,
-} from "@/types/courses";
+import type { RevisedSectionResponse } from "@/types/courses";
 
 type EditLinkedEventProps = {
 	eventId: string;
-	courses: CourseResponse;
 
 	cancelOnClick?: () => void;
 	actionSecondaryOnClick?: () => void;
@@ -24,7 +21,6 @@ type EditLinkedEventProps = {
 
 export default function EditLinkedEvent({
 	eventId,
-	courses,
 	cancelOnClick,
 	actionSecondaryOnClick,
 }: EditLinkedEventProps) {
@@ -33,44 +29,31 @@ export default function EditLinkedEvent({
 	const eventData = useUserStore((state) => state.getEvent(tabId, eventId));
 	const updateEvent = useUserStore((state) => state.updateEvent);
 
-	const [selectedCourse, setSelectedCourse] = useState<
-		Array<AssembledCourseSingleSection>
+	const getSection = useCourseStore((state) => state.getSection);
+	const getCourse = useCourseStore((state) => state.getCourse);
+
+	const [selectedSection, setSelectedSection] = useState<
+		Array<RevisedSectionResponse>
 	>([]);
 
 	useEffect(() => {
-		if (
-			eventData &&
-			eventData.kind === "linked-course" &&
-			typeof courses !== "number"
-		) {
-			const allCourse = courses[termCode].find(
-				(course) => course.course_id === eventData.courseId,
-			);
-			if (!allCourse) return;
-			const section = allCourse.sections.find(
-				(section) => section.section_id === eventData.sectionId,
-			);
+		if (eventData && eventData.kind === "linked-course") {
+			const section = getSection(eventData.sectionId.toString());
 			if (!section) return;
 
-			setSelectedCourse([
-				{
-					...allCourse,
-					section,
-				},
-			]);
+			setSelectedSection([section]);
 		}
-	}, [courses, eventData, termCode]);
+	}, [eventData, getSection]);
 
-	if (!eventData || typeof courses === "number") return null;
+	if (!eventData) return null;
 
 	return (
 		<>
 			<div>
 				{eventData.kind === "linked-course" && (
 					<CourseAddList
-						courses={courses}
-						selectedCourse={selectedCourse}
-						setSelectedCourse={setSelectedCourse}
+						selectedSection={selectedSection}
+						setSelectedSection={setSelectedSection}
 						selectedAtTop
 					/>
 				)}
@@ -82,15 +65,17 @@ export default function EditLinkedEvent({
 				</AlertDialogCancel>
 				<AlertDialogAction
 					onClick={() => {
-						if (eventData.kind === "linked-course") {
+						const course = getCourse(selectedSection[0].courseId);
+
+						if (eventData.kind === "linked-course" && course) {
 							updateEvent(tabId, {
 								eventId,
 								termCode,
 								color: eventData.color,
 								kind: "linked-course",
-								courseId: selectedCourse[0].course_id,
-								sectionId: selectedCourse[0].section.section_id,
-								staticCourseCredits: parseFloat(selectedCourse[0].credits),
+								courseId: parseInt(selectedSection[0].courseId, 10),
+								sectionId: parseInt(selectedSection[0].id, 10),
+								staticCourseCredits: course.credits,
 							});
 							toast.add({
 								description: "Event updated successfully",
