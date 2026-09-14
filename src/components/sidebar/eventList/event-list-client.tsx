@@ -25,23 +25,18 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import type { TermResponse } from "@/data/terms";
 import { cn, mergeMeetings } from "@/lib/utils";
+import useCourseStore from "@/stores/course-store";
 import useUserStore from "@/stores/user-store";
-import type { CourseResponse } from "@/types/courses";
 
-export default function EventListClient({
-	terms,
-	courses,
-}: {
-	terms: TermResponse;
-	courses: CourseResponse;
-}) {
+export default function EventListClient() {
 	const credits = useUserStore((state) => state.getActiveTabCredits());
 	const term = useUserStore((state) => state.activeTerm);
 	const events = useUserStore((state) => state.getEvents(state.activeTab));
 
-	if (typeof courses === "number") return <p>Error loading courses</p>;
+	const getCourse = useCourseStore((state) => state.getCourse);
+	const getSection = useCourseStore((state) => state.getSection);
+	const getMeetings = useCourseStore((state) => state.getMeetings);
 
 	return (
 		<div className="flex h-full min-h-0 flex-col overflow-hidden">
@@ -80,31 +75,25 @@ export default function EventListClient({
 						switch (event.kind) {
 							case "linked-course": {
 								if (event.termCode !== term) return null;
-								const courseData = courses[term].find(
-									(course) => course.course_id === event.courseId,
-								);
+								const courseData = getCourse(event.courseId.toString());
 								if (!courseData) return <p>Course not found !!</p>;
 
-								const sectionData = courseData.sections.find(
-									(section) => section.section_id === event.sectionId,
-								);
+								const sectionData = getSection(event.sectionId.toString());
 								if (!sectionData) return <p>Section not found !!</p>;
 
-								cardObject.title = `${courseData.course_code}-${sectionData.section_code}`;
-								cardObject.description = `${courseData.course_title}`;
+								const meetings = getMeetings(event.sectionId.toString());
+
+								cardObject.title = `${courseData.code}-${sectionData.code}`;
+								cardObject.description = `${courseData.title}`;
 
 								const tempMeetings = [] as {
 									day: string;
 									startTime: string;
 									endTime: string;
 								}[];
-								for (const meeting of sectionData.meetings) {
-									const startTime = new Date(
-										`2026-08-13T${meeting.start_time}`,
-									).toString();
-									const endTime = new Date(
-										`2026-08-13T${meeting.end_time}`,
-									).toString();
+								for (const meeting of meetings) {
+									const startTime = meeting.startTime.toString();
+									const endTime = meeting.endTime.toString();
 									tempMeetings.push({
 										day: meeting.day,
 										startTime,
@@ -130,8 +119,6 @@ export default function EventListClient({
 						return (
 							<ClassCard
 								key={`sidebar-event-${event.eventId}`}
-								terms={terms}
-								courses={courses}
 								data={cardObject}
 							/>
 						);
@@ -142,15 +129,7 @@ export default function EventListClient({
 	);
 }
 
-function ClassCard({
-	terms,
-	courses,
-	data,
-}: {
-	terms: TermResponse;
-	courses: CourseResponse;
-	data: EventListCardData;
-}) {
+function ClassCard({ data }: { data: EventListCardData }) {
 	const activeTab = useUserStore((state) => state.getActiveTab());
 	const removeEvent = useUserStore((state) => state.removeEvent);
 
@@ -169,8 +148,8 @@ function ClassCard({
 			>
 				<EditEventModal
 					eventId={data.eventId}
-					terms={terms}
-					courses={courses}
+					terms={[]}
+					courses={{ a: [] }}
 					trigger={
 						<Tooltip>
 							<AlertDialogTrigger
@@ -190,7 +169,7 @@ function ClassCard({
 				/>
 
 				<EditColorModal
-					courses={courses}
+					courses={{ a: [] }}
 					eventId={data.eventId}
 					trigger={
 						<Tooltip>
