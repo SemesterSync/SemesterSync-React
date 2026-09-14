@@ -58,8 +58,8 @@ const EventAddLinked = forwardRef<HTMLDivElement, EventAddLinkedProps>(
 					color: selectedColor,
 
 					kind: "linked-course",
-					courseId: parseInt(section.courseId, 10),
-					sectionId: parseInt(section.id, 10),
+					courseId: section.courseId,
+					sectionId: section.id,
 					termCode: term?.code || "",
 
 					staticCourseCredits: course?.credits || 0,

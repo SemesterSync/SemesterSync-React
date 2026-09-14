@@ -73,8 +73,8 @@ export default function EditLinkedEvent({
 								termCode,
 								color: eventData.color,
 								kind: "linked-course",
-								courseId: parseInt(selectedSection[0].courseId, 10),
-								sectionId: parseInt(selectedSection[0].id, 10),
+								courseId: selectedSection[0].courseId,
+								sectionId: selectedSection[0].id,
 								staticCourseCredits: course.credits,
 							});
 							toast.add({

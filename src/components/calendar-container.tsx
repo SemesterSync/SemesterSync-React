@@ -472,8 +472,8 @@ function structureEventCards(
 
 						kind: "linked-course",
 						sectionCode: section.code,
-						courseId: parseInt(course.id, 10),
-						sectionId: parseInt(section.id, 10),
+						courseId: course.id,
+						sectionId: section.id,
 
 						seatsAvailable: section.seatsAvailable,
 						seatsTotal: section.seatsTotal,
