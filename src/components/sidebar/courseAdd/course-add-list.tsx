@@ -45,7 +45,7 @@ export default function CourseAddList({
 
 	const getCourses = useCourseStore((state) => state.getCoursesByTermCode);
 	const getSections = useCourseStore((state) => state.getSectionsByCourseId);
-	const nCourses = useMemo(
+	const courses = useMemo(
 		() => getCourses(selectedTerm),
 		[selectedTerm, getCourses],
 	);
@@ -65,22 +65,8 @@ export default function CourseAddList({
 	const [selectedCourse, setSelectedCourse] = useState<Array<string>>([]);
 	const [selectedSection, setSelectedSection] = useState<Array<string>>([]);
 
-	useEffect(
-		() => setSections(getSections(showCourseSectionId)),
-		[getSections, showCourseSectionId],
-	);
-
-	// useEffect(() => {
-	// 	if (typeof courses === "number") return;
-
-	// 	setCoursesByTerm(courses[selectedTerm] || []);
-	// 	setFilteredCourses(courses[selectedTerm] || []);
-	// }, [selectedTerm, courses]);
-
-	console.log(sections);
-
 	useEffect(() => {
-		if (searchQuery === "") setFilteredCourses(nCourses);
+		if (searchQuery === "") setFilteredCourses(courses);
 
 		let simplifiedQuery = searchQuery.toLowerCase();
 		const isSearchingForSelected = searchQuery
@@ -88,7 +74,7 @@ export default function CourseAddList({
 			.includes("@selected");
 		simplifiedQuery = simplifiedQuery.replace("@selected", "").trim();
 
-		let filteredCourses = nCourses;
+		let filteredCourses = courses;
 
 		if (isSearchingForSelected) {
 			filteredCourses = filteredCourses.filter((course) =>
@@ -118,7 +104,12 @@ export default function CourseAddList({
 		}
 
 		setFilteredCourses(filteredCourses);
-	}, [searchQuery, selectedCourse, selectedAtTop, nCourses]);
+	}, [searchQuery, selectedCourse, selectedAtTop, courses]);
+
+	useEffect(
+		() => setSections(getSections(showCourseSectionId)),
+		[getSections, showCourseSectionId],
+	);
 
 	useEffect(() => {
 		const extSelectedCourses = [] as Array<string>;
@@ -152,7 +143,7 @@ export default function CourseAddList({
 		}
 	}, []);
 
-	if (nCourses.length === 0)
+	if (courses.length === 0)
 		return (
 			<p className="text-destructive bg-destructive/20 rounded-lg text-xs py-2 w-full text-center">
 				Error Loading Courses
