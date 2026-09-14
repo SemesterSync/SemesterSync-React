@@ -1,5 +1,5 @@
 import { Sidebar, SidebarContent, SidebarHeader } from "../ui/sidebar";
-import CourseAddModal from "./courseAdd/course-add";
+import EventAddModal from "./courseAdd/event-add-modal";
 import EventList from "./eventList/event-list";
 import MiniCalendar from "./miniCalendar/mini-calendar";
 import TermDropdown from "./terms/term-dropdown";
@@ -13,7 +13,7 @@ export default async function AppSidebar() {
 				</p>
 			</SidebarHeader>
 			<SidebarContent className="p-2 gap-2">
-				<CourseAddModal />
+				<EventAddModal />
 
 				<TermDropdown />
 

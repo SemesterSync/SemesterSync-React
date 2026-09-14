@@ -44,7 +44,7 @@ const selectOptions = [
 	},
 ];
 
-export default function EventAddModalClient() {
+export default function EventAddModal() {
 	const activeTerm = useUserStore((state) => state.activeTerm);
 
 	const [selectedOption, setSelectedOption] = useState("none");
