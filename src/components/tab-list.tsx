@@ -181,7 +181,7 @@ export default function TabList() {
 													<AlertDialogDescription>
 														You are about to delete <b>{tab.name}</b> with{" "}
 														<b>
-															{tab.events.length}
+															{tab.events.length}{" "}
 															course
 															{tab.events.length === 1 && "s"}
 														</b>
