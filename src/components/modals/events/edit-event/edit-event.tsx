@@ -10,17 +10,13 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import type { TermResponse } from "@/data/terms";
 import useUserStore from "@/stores/user-store";
-import type { CourseResponse } from "@/types/courses";
 import EditLinkedEvent from "./edit-linked-event";
 import EditPersonalEvent from "./edit-personal-event";
 import EditUnlinkedEvent from "./edit-unlinked-event";
 
 export type EventEditModalProps = {
 	eventId: string;
-	terms: TermResponse;
-	courses: CourseResponse;
 
 	trigger?: React.ReactNode;
 
@@ -33,8 +29,6 @@ export type EventEditModalProps = {
 
 export default function EditEventModal({
 	eventId,
-	terms,
-	courses,
 
 	trigger,
 
@@ -47,8 +41,7 @@ export default function EditEventModal({
 	const tabId = useUserStore((state) => state.activeTab);
 	const eventData = useUserStore((state) => state.getEvent(tabId, eventId));
 
-	if (!eventData || typeof courses === "number" || typeof terms === "number")
-		return null;
+	if (!eventData) return null;
 
 	return (
 		<AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -77,7 +70,6 @@ export default function EditEventModal({
 				{eventData.kind === "linked-course" && (
 					<EditLinkedEvent
 						eventId={eventId}
-						courses={courses}
 						cancelOnClick={cancelOnClick}
 						actionSecondaryOnClick={actionSecondaryOnClick}
 					/>
@@ -86,8 +78,6 @@ export default function EditEventModal({
 				{eventData.kind === "unlinked-course" && (
 					<EditUnlinkedEvent
 						eventId={eventId}
-						terms={terms}
-						courses={courses}
 						cancelOnClick={cancelOnClick}
 						actionSecondaryOnClick={actionSecondaryOnClick}
 					/>
@@ -96,8 +86,6 @@ export default function EditEventModal({
 				{eventData.kind === "personal" && (
 					<EditPersonalEvent
 						eventId={eventId}
-						terms={terms}
-						courses={courses}
 						cancelOnClick={cancelOnClick}
 						actionSecondaryOnClick={actionSecondaryOnClick}
 					/>

@@ -9,7 +9,6 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/components/ui/toast";
-import type { TermResponse } from "@/data/terms";
 import { useAppForm } from "@/hooks/use-form";
 import type { Event, PersonalEventVariantMeeting } from "@/schemas/events";
 import {
@@ -19,12 +18,9 @@ import {
 	personalEventAddSchema,
 } from "@/schemas/personal-event";
 import useUserStore from "@/stores/user-store";
-import type { CourseResponse } from "@/types/courses";
 
 type EditPersonalEventProps = {
 	eventId: string;
-	terms: TermResponse;
-	courses: CourseResponse;
 
 	cancelOnClick?: () => void;
 	actionSecondaryOnClick?: () => void;
@@ -32,8 +28,6 @@ type EditPersonalEventProps = {
 
 export default function EditPersonalEvent({
 	eventId,
-	terms,
-	courses,
 
 	cancelOnClick,
 	actionSecondaryOnClick,
@@ -77,8 +71,6 @@ export default function EditPersonalEvent({
 		onSubmit: (values) => {
 			const formData = values.value;
 
-			if (typeof terms === "number") return;
-
 			const event: Event = {
 				eventId: eventData?.eventId || "",
 				color: formData.color,
@@ -116,8 +108,7 @@ export default function EditPersonalEvent({
 		},
 	});
 
-	if (!eventData || typeof courses === "number" || typeof terms === "number")
-		return null;
+	if (!eventData) return null;
 
 	return (
 		<ScrollArea className="h-[60vh]">
@@ -129,7 +120,7 @@ export default function EditPersonalEvent({
 					form.handleSubmit();
 				}}
 			>
-				<PersonalEventFormFields form={form} terms={terms} />
+				<PersonalEventFormFields form={form} />
 
 				<Separator className="my-2" />
 

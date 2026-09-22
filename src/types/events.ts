@@ -15,8 +15,8 @@ export type CourseCalendarCardGeneric = {
 export type LinkedCourseCalendarCard = {
 	kind: "linked-course";
 
-	courseId: number;
-	sectionId: number;
+	courseId: string;
+	sectionId: string;
 
 	seatsAvailable: number;
 	seatsTotal: number;

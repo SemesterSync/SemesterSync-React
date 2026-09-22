@@ -4,11 +4,15 @@ import clsx from "clsx";
 import { Edit, Palette, Trash } from "lucide-react";
 import { useState } from "react";
 import { Fragment } from "react/jsx-runtime";
-import type { TermResponse } from "@/data/terms";
 import { cn } from "@/lib/utils";
 import type { Event } from "@/schemas/events";
+import useCourseStore from "@/stores/course-store";
 import useUserStore from "@/stores/user-store";
-import type { AssembledCourse, CourseResponse } from "@/types/courses";
+import type {
+	CourseResponse,
+	MeetingResponse,
+	SectionResponse,
+} from "@/types/courses";
 import type { CalendarCard, CalendarCards } from "@/types/events";
 import { CalendarCardUI } from "./events/calendar-card";
 import DangerModal from "./modals/danger";
@@ -45,17 +49,15 @@ const days = [
 	{ long: "Saturday", short: "Sat" },
 ];
 
-export default function ClassList({
-	terms,
-	courses,
-}: {
-	terms: TermResponse;
-	courses: CourseResponse;
-}) {
+export default function ClassList() {
 	const activeTab = useUserStore((state) => state.getActiveTab());
 	const activeTerm = useUserStore((state) => state.activeTerm);
 	const events = useUserStore((state) => state.getEvents(state.activeTab));
 	const removeEvent = useUserStore((state) => state.removeEvent);
+
+	const getCourse = useCourseStore((state) => state.getCourse);
+	const getSection = useCourseStore((state) => state.getSection);
+	const getMeetings = useCourseStore((state) => state.getMeetings);
 
 	const today = new Date();
 	const selectedDate = activeTab.selectedDate
@@ -71,10 +73,13 @@ export default function ClassList({
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 	const [modalEvent, setModalEvent] = useState<CalendarCard>();
 
-	if (typeof courses === "number" || typeof terms === "number")
-		return <p>Error loading course/terms</p>;
-
-	const structuredEvents = structureEventCards(events, activeTerm, courses);
+	const structuredEvents = structureEventCards(
+		events,
+		activeTerm,
+		getCourse,
+		getSection,
+		getMeetings,
+	);
 
 	return (
 		<div
@@ -335,8 +340,6 @@ export default function ClassList({
 
 			{modalEvent && (
 				<EditEventModal
-					terms={terms}
-					courses={courses}
 					eventId={modalEvent.id}
 					open={isEditModalOpen}
 					onOpenChange={setIsEditModalOpen}
@@ -382,7 +385,6 @@ export default function ClassList({
 
 			{modalEvent && (
 				<EditColorModal
-					courses={courses}
 					eventId={modalEvent.id}
 					open={isColorModalOpen}
 					onOpenChange={setIsColorModalOpen}
@@ -406,7 +408,9 @@ function formatHourPair(hour: number) {
 function structureEventCards(
 	events: Array<Event>,
 	activeTerm: string,
-	courses: Record<string, Array<AssembledCourse>>,
+	getCourse: (courseId: string) => CourseResponse | undefined,
+	getSection: (sectionId: string) => SectionResponse | undefined,
+	getMeetings: (sectionId: string) => Array<MeetingResponse>,
 ) {
 	const structuredEvents: CalendarCards = [];
 
@@ -414,20 +418,17 @@ function structureEventCards(
 		switch (event.kind) {
 			case "linked-course": {
 				if (event.termCode !== activeTerm) continue;
-				const courseData = courses[activeTerm].find(
-					(course) => course.course_id === event.courseId,
-				);
-				if (!courseData) continue;
-				const sectionData = courseData.sections.find(
-					(section) => section.section_id === event.sectionId,
-				);
-				if (!sectionData) continue;
+				const course = getCourse(event.courseId.toString());
+				if (!course) continue;
+				const section = getSection(event.sectionId.toString());
+				if (!section) continue;
+				const meetings = getMeetings(event.sectionId.toString());
 
-				for (const meeting of sectionData.meetings) {
-					const startDate = new Date(sectionData.start_date);
-					const endDate = new Date(sectionData.end_date);
-					const startTime = new Date(`2026-08-13T${meeting.start_time}`);
-					const endTime = new Date(`2026-08-13T${meeting.end_time}`);
+				for (const meeting of meetings) {
+					const startDate = section.startDate;
+					const endDate = section.endDate;
+					const startTime = meeting.startTime;
+					const endTime = meeting.endTime;
 
 					if (startTime.getHours() >= endHour) continue;
 					if (endTime.getHours() < startHour) continue;
@@ -438,13 +439,25 @@ function structureEventCards(
 
 					if (columnOffset === -1) continue;
 
+					const ins = [];
+					if (meeting.primaryInstructor !== null)
+						ins.push({
+							firstName: meeting.primaryInstructor.firstName,
+							lastName: meeting.primaryInstructor.lastName,
+						});
+					if (meeting.secondaryInstructor !== null)
+						ins.push({
+							firstName: meeting.secondaryInstructor.firstName,
+							lastName: meeting.secondaryInstructor.lastName,
+						});
+
 					structuredEvents.push({
 						id: event.eventId,
 						key: `${event.eventId}-${meeting.day}-${startTime.toString()}-${endTime.toString()}`,
-						meetingCount: sectionData.meetings.length,
+						meetingCount: meetings.length,
 
-						title: `${courseData.course_code}-${sectionData.section_code}`,
-						description: `${courseData.course_title}`,
+						title: `${course.code}-${section.code}`,
+						description: `${course.title}`,
 
 						startDate,
 						endDate,
@@ -458,22 +471,22 @@ function structureEventCards(
 						color: event.color,
 
 						kind: "linked-course",
-						sectionCode: sectionData.section_code,
-						courseId: courseData.course_id,
-						sectionId: sectionData.section_id,
+						sectionCode: section.code,
+						courseId: course.id,
+						sectionId: section.id,
 
-						seatsAvailable: sectionData.seats_available,
-						seatsTotal: sectionData.seats_total,
+						seatsAvailable: section.seatsAvailable,
+						seatsTotal: section.seatsTotal,
 
-						credits: parseFloat(courseData.credits),
+						credits: course.credits,
 
 						campus: meeting.campus,
-						building: meeting.building,
-						room: meeting.room.name || "",
-						instructors: meeting.instructors.map((i) => ({
-							firstName: i.first_name,
-							lastName: i.last_name,
-						})),
+						building: {
+							long: meeting.building?.name || "Unknown Building",
+							short: meeting.building?.abbrev || null,
+						},
+						room: meeting.room || "Unknown Room",
+						instructors: ins,
 					});
 				}
 				break;

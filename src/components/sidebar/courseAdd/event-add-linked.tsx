@@ -21,49 +21,52 @@ import {
 } from "@/components/ui/tooltip";
 import { createSwipeRightVariant, TRANSITION } from "@/lib/animation";
 import { cn } from "@/lib/utils";
+import useCourseStore from "@/stores/course-store";
 import useUserStore from "@/stores/user-store";
-import type {
-	AssembledCourseSingleSection,
-	CourseResponse,
-} from "@/types/courses";
+import type { SectionResponse } from "@/types/courses";
 import CourseAddList, { MeetingsDisplay } from "./course-add-list";
 
 type EventAddLinkedProps = {
-	courses: CourseResponse;
 	setSelectedOption: React.Dispatch<React.SetStateAction<string>>;
 	closeParentModal: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const EventAddLinked = forwardRef<HTMLDivElement, EventAddLinkedProps>(
-	({ courses, setSelectedOption, closeParentModal }, ref) => {
-		const [selectedCourse, setSelectedCourse] = useState<
-			Array<AssembledCourseSingleSection>
+	({ setSelectedOption, closeParentModal }, ref) => {
+		const tab = useUserStore((state) => state.getActiveTab());
+		const eventAdd = useUserStore((state) => state.addEvent);
+
+		const getTerm = useCourseStore((state) => state.getTerm);
+		const getCourse = useCourseStore((state) => state.getCourse);
+
+		const [selectedSection, setSelectedSection] = useState<
+			Array<SectionResponse>
 		>([]);
 		const [selectedColor, setSelectedColor] = useState<string>("#4285F4");
 		const [isResetModalOpen, setIsResetModalOpen] = useState(false);
-
-		const tab = useUserStore((state) => state.getActiveTab());
-		const eventAdd = useUserStore((state) => state.addEvent);
 
 		const shouldReduceMotion = useReducedMotion();
 		const swipeRightVariant = createSwipeRightVariant(shouldReduceMotion);
 
 		const handleAddCourse = () => {
-			for (const course of selectedCourse) {
+			for (const section of selectedSection) {
+				const term = getTerm(section.termId);
+				const course = getCourse(section.courseId);
+
 				eventAdd(tab.id, {
 					eventId: uuid(),
 					color: selectedColor,
 
 					kind: "linked-course",
-					courseId: course.course_id,
-					sectionId: course.section.section_id,
-					termCode: course.term_code,
+					courseId: section.courseId,
+					sectionId: section.id,
+					termCode: term?.code || "",
 
-					staticCourseCredits: parseFloat(course.credits),
+					staticCourseCredits: course?.credits || 0,
 				});
 			}
 
-			setSelectedCourse([]);
+			setSelectedSection([]);
 			setSelectedOption("none");
 		};
 
@@ -85,11 +88,11 @@ const EventAddLinked = forwardRef<HTMLDivElement, EventAddLinkedProps>(
 						type="proceedReset"
 						isModalOpen={isResetModalOpen}
 						onOpenChange={setIsResetModalOpen}
-						triggerDestructive={selectedCourse.length !== 0}
+						triggerDestructive={selectedSection.length !== 0}
 						triggerOnClick={() => {
-							if (selectedCourse.length === 0) {
+							if (selectedSection.length === 0) {
 								setSelectedOption("none");
-								setSelectedCourse([]);
+								setSelectedSection([]);
 								setIsResetModalOpen(false);
 							} else {
 								closeParentModal(true);
@@ -104,7 +107,7 @@ const EventAddLinked = forwardRef<HTMLDivElement, EventAddLinkedProps>(
 						actionOnClick={() => {
 							setIsResetModalOpen(false);
 							closeParentModal(false);
-							setSelectedCourse([]);
+							setSelectedSection([]);
 							setTimeout(() => setSelectedOption("none"), 150);
 						}}
 					/>
@@ -113,7 +116,7 @@ const EventAddLinked = forwardRef<HTMLDivElement, EventAddLinkedProps>(
 				<div className="flex flex-col gap-2 rounded-md border border-border p-2">
 					<div className="flex flex-col gap-2">
 						<ScrollArea className="h-24">
-							{selectedCourse.length === 0 ? (
+							{selectedSection.length === 0 ? (
 								<div className="flex flex-col gap-1 h-24 justify-center text-center">
 									<p className="">No Courses Selected</p>
 									<p className="text-muted-foreground">
@@ -121,76 +124,76 @@ const EventAddLinked = forwardRef<HTMLDivElement, EventAddLinkedProps>(
 									</p>
 								</div>
 							) : (
-								selectedCourse.map((course) => (
-									<Popover
-										key={`${course.course_id}-${course.section.section_id}`}
-									>
-										<PopoverTrigger className="cursor-pointer w-full text-left">
-											{course.course_code}-{course.section.section_code}:{" "}
-											{course.course_title}
-										</PopoverTrigger>
-										<PopoverContent className="sm:w-md">
-											<div className="flex flex-col gap-2">
-												<div className="flex flex-row items-baseline gap-1 justify-between">
-													<p>{course.course_title}</p>
-													<p>
-														{course.course_code}-{course.section.section_code}
-													</p>
-												</div>
-												<div className="flex flex-row items-baseline gap-1">
-													<p>
-														{course.credits}{" "}
-														<span className="text-muted-foreground">
-															credits
-														</span>
-													</p>
+								selectedSection.map((section) => {
+									const course = getCourse(section.courseId);
+									if (!course) return null;
 
-													<Separator orientation="vertical" />
-
-													{course.section.seats_available > -1 ? (
-														<p
-															className={cn(
-																clsx("", {
-																	"text-yellow-600":
-																		course.section.seats_available /
-																			course.section.seats_total <
-																		0.5,
-																	"text-destructive":
-																		course.section.seats_available /
-																			course.section.seats_total <
-																		0.25,
-																}),
-															)}
-														>
-															{course.section.seats_available} /{" "}
-															{course.section.seats_total}{" "}
+									return (
+										<Popover key={`${section.courseId}-${section.id}`}>
+											<PopoverTrigger className="cursor-pointer w-full text-left">
+												{course.code}-{section.code}: {course.title}
+											</PopoverTrigger>
+											<PopoverContent className="sm:w-md">
+												<div className="flex flex-col gap-2">
+													<div className="flex flex-row items-baseline gap-1 justify-between">
+														<p>{course.title}</p>
+														<p>
+															{course.code}-{section.code}
+														</p>
+													</div>
+													<div className="flex flex-row items-baseline gap-1">
+														<p>
+															{course.credits}{" "}
 															<span className="text-muted-foreground">
-																{course.section.seats_available > -1
-																	? "seats"
-																	: "on waitlist"}
+																credits
 															</span>
 														</p>
-													) : (
-														<p className="text-destructive">
-															{Math.abs(course.section.seats_available)} on
-															waitlist
-														</p>
-													)}
+
+														<Separator orientation="vertical" />
+
+														{section.seatsAvailable > -1 ? (
+															<p
+																className={cn(
+																	clsx("", {
+																		"text-yellow-600":
+																			section.seatsAvailable /
+																				section.seatsTotal <
+																			0.5,
+																		"text-destructive":
+																			section.seatsAvailable /
+																				section.seatsTotal <
+																			0.25,
+																	}),
+																)}
+															>
+																{section.seatsAvailable} / {section.seatsTotal}{" "}
+																<span className="text-muted-foreground">
+																	{section.seatsAvailable > -1
+																		? "seats"
+																		: "on waitlist"}
+																</span>
+															</p>
+														) : (
+															<p className="text-destructive">
+																{Math.abs(section.seatsAvailable)} on waitlist
+															</p>
+														)}
+													</div>
 												</div>
-											</div>
 
-											<Separator />
+												<Separator />
 
-											<MeetingsDisplay section={course.section} />
-										</PopoverContent>
-									</Popover>
-								))
+												<MeetingsDisplay section={section} />
+											</PopoverContent>
+										</Popover>
+									);
+								})
 							)}
 						</ScrollArea>
 						<div className="flex flex-row items-center gap-1 w-full">
 							<Button
-								disabled={selectedCourse.length === 0}
-								variant={selectedCourse.length === 0 ? "secondary" : "default"}
+								disabled={selectedSection.length === 0}
+								variant={selectedSection.length === 0 ? "secondary" : "default"}
 								onClick={handleAddCourse}
 								className="flex-1"
 							>
@@ -201,16 +204,20 @@ const EventAddLinked = forwardRef<HTMLDivElement, EventAddLinkedProps>(
 								variant="secondary"
 								className={clsx("", {
 									"text-yellow-600":
-										selectedCourse.reduce(
-											(acc, curr) => acc + parseFloat(curr.credits),
-											0,
-										) > 18,
+										selectedSection.reduce((acc, curr) => {
+											const course = getCourse(curr.courseId);
+											if (!course) return acc;
+
+											return acc + course.credits;
+										}, 0) > 18,
 								})}
 							>
-								{selectedCourse.reduce(
-									(acc, curr) => acc + parseFloat(curr.credits),
-									0,
-								)}{" "}
+								{selectedSection.reduce((acc, curr) => {
+									const course = getCourse(curr.courseId);
+									if (!course) return acc;
+
+									return acc + course.credits;
+								}, 0)}{" "}
 								credits
 							</Button>
 
@@ -242,9 +249,8 @@ const EventAddLinked = forwardRef<HTMLDivElement, EventAddLinkedProps>(
 				</div>
 
 				<CourseAddList
-					courses={courses}
-					selectedCourse={selectedCourse}
-					setSelectedCourse={setSelectedCourse}
+					selectedSection={selectedSection}
+					setSelectedSection={setSelectedSection}
 					multiple
 				/>
 			</motion.div>

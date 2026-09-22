@@ -19,14 +19,15 @@ import { ColorPickerInners } from "@/components/ui/color-picker";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/components/ui/toast";
 import { defaultColors, mergeMeetings } from "@/lib/utils";
+import useCourseStore from "@/stores/course-store";
 import useUserStore from "@/stores/user-store";
 import type {
-	AssembledCourseSingleSection,
 	CourseResponse,
+	MeetingResponse,
+	SectionResponse,
 } from "@/types/courses";
 
 type EditColorModalProps = {
-	courses: CourseResponse;
 	eventId: string;
 
 	open?: boolean;
@@ -39,7 +40,6 @@ type EditColorModalProps = {
 };
 
 export default function EditColorModal({
-	courses,
 	eventId,
 
 	open,
@@ -51,40 +51,35 @@ export default function EditColorModal({
 	actionSecondaryOnClick,
 }: EditColorModalProps) {
 	const tabId = useUserStore((state) => state.activeTab);
-	const termCode = useUserStore((state) => state.activeTerm);
 	const eventData = useUserStore((state) => state.getEvent(tabId, eventId));
 	const updateEvent = useUserStore((state) => state.updateEvent);
+
+	const getCourse = useCourseStore((state) => state.getCourse);
+	const getSection = useCourseStore((state) => state.getSection);
+	const getMeetings = useCourseStore((state) => state.getMeetings);
 
 	const [selectedColor, setSelectedColor] = useState(
 		eventData ? eventData.color : "#4285F4",
 	);
-	const [courseData, setCourseData] = useState<
-		AssembledCourseSingleSection | undefined
-	>(undefined);
+	const [courseData, setCourseData] = useState<CourseResponse>();
+	const [sectionData, setSectionData] = useState<SectionResponse>();
+	const [meetings, setMeetings] = useState<Array<MeetingResponse>>([]);
 
 	useEffect(() => {
-		if (
-			eventData &&
-			eventData.kind === "linked-course" &&
-			typeof courses !== "number"
-		) {
-			const allCourse = courses[termCode].find(
-				(course) => course.course_id === eventData.courseId,
-			);
-			if (!allCourse) return;
-			const section = allCourse.sections.find(
-				(section) => section.section_id === eventData.sectionId,
-			);
+		if (eventData && eventData.kind === "linked-course") {
+			const course = getCourse(eventData.courseId.toString());
+			if (!course) return;
+			const section = getSection(eventData.sectionId.toString());
 			if (!section) return;
+			const meetings = getMeetings(eventData.sectionId.toString());
 
-			setCourseData({
-				...allCourse,
-				section,
-			});
+			setCourseData(course);
+			setSectionData(section);
+			setMeetings(meetings);
 		}
-	}, [eventData, courses, termCode]);
+	}, [eventData, getCourse, getSection, getMeetings]);
 
-	if (!eventData || typeof courses === "number") return null;
+	if (!eventData) return null;
 
 	return (
 		<AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -155,17 +150,13 @@ export default function EditColorModal({
 								eventData.kind === "linked-course"
 									? {
 											eventId,
-											title: `${courseData?.course_code}-${courseData?.section.section_code}`,
-											description: `${courseData?.course_title}`,
+											title: `${courseData?.code}-${sectionData?.code}`,
+											description: `${courseData?.title}`,
 											color: selectedColor,
 											meetings: mergeMeetings(
-												courseData?.section.meetings.map((meeting) => {
-													const startTime = new Date(
-														`2026-08-16T${meeting.start_time}`,
-													).toString();
-													const endTime = new Date(
-														`2026-08-16T${meeting.end_time}`,
-													).toString();
+												meetings.map((meeting) => {
+													const startTime = meeting.startTime.toString();
+													const endTime = meeting.endTime.toString();
 
 													return {
 														day: meeting.day,
@@ -194,37 +185,35 @@ export default function EditColorModal({
 						/>
 
 						<h2 className="font-semibold">Event Calendar Preview:</h2>
-						<CalendarCardUI
-							event={
-								eventData.kind === "linked-course"
-									? {
-											title: `${courseData?.course_code}-${courseData?.section.section_code}`,
-											description: `${courseData?.course_title}`,
-											startTime: new Date(
-												`2026-08-16T${courseData?.section.meetings[0].start_time}`,
-											),
-											endTime: new Date(
-												`2026-08-16T${courseData?.section.meetings[0].end_time}`,
-											),
-											color: selectedColor,
-										}
-									: eventData.kind === "unlinked-course"
+						{(meetings.length > 0 || eventData.kind !== "linked-course") && (
+							<CalendarCardUI
+								event={
+									eventData.kind === "linked-course"
 										? {
-												title: `${eventData.courseCode}-${eventData.sectionCode}`,
-												description: eventData.courseTitle,
-												startTime: eventData.meetings[0].startTime,
-												endTime: eventData.meetings[0].endTime,
+												title: `${courseData?.code}-${sectionData?.code}`,
+												description: `${courseData?.title}`,
+												startTime: meetings[0].startTime,
+												endTime: meetings[0].endTime,
 												color: selectedColor,
 											}
-										: {
-												title: eventData.title,
-												description: eventData.description || "",
-												startTime: eventData.meetings[0].startTime,
-												endTime: eventData.meetings[0].endTime,
-												color: selectedColor,
-											}
-							}
-						/>
+										: eventData.kind === "unlinked-course"
+											? {
+													title: `${eventData.courseCode}-${eventData.sectionCode}`,
+													description: eventData.courseTitle,
+													startTime: eventData.meetings[0].startTime,
+													endTime: eventData.meetings[0].endTime,
+													color: selectedColor,
+												}
+											: {
+													title: eventData.title,
+													description: eventData.description || "",
+													startTime: eventData.meetings[0].startTime,
+													endTime: eventData.meetings[0].endTime,
+													color: selectedColor,
+												}
+								}
+							/>
+						)}
 					</div>
 				</div>
 			</AlertDialogContent>
