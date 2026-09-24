@@ -35,7 +35,9 @@ import {
 
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Input } from "@base-ui/react";
-import { se } from "date-fns/locale";
+
+import useUserStore from "@/stores/user-store";
+
 
 
 export function ShareItem({
@@ -65,11 +67,11 @@ export function ShareItemModal({
 
     const [copySuccess, setCopySuccess] = useState(false);
     
-    const [expiration, setExpiration] = useState("24");
+    const [expiration, setExpiration] = useState("1");
 
     const expirationItems = [
         { label: "1 hour", value: "1"},
-        { label: "1 day", value: daysToHours(1).toString()},
+        { label: "1 day", value: daysToHours(1)},
         { label: "7 days", value: daysToHours(7)},
         { label: "30 days", value: daysToHours(30)},
         { label: "Never", value: "never"},
@@ -79,10 +81,41 @@ export function ShareItemModal({
 
     const [link, setLink] = useState<string | null>(null);
 
-    const handleCreateLink = () => {
-        setShareSuccess(true);
-        setLink(`https://example.com/share?expiration=${expiration}&permission=${permission}`);
-        console.log("Creating share link:", { expiration, permission });
+    const activeTab = useUserStore((state) => state.getActiveTab());
+
+    const handleCreateLink = async () => {
+        if (!activeTab) {
+            console.error("No active schedule found");
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/schedules/${activeTab.id}/share`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    schedule: activeTab,
+                    expiration,
+                    permission,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                console.error("Failed to create share link:", data);
+                return;
+            }
+
+            console.log("Generated share link:", data.url);
+
+            setLink(data.url);
+            setShareSuccess(true);
+        } catch (error) {
+            console.error("Error creating share link:", error);
+        }
     };
 
     const copyToClipboard = () => {
@@ -93,7 +126,7 @@ export function ShareItemModal({
                 setTimeout(() => {
                     setCopySuccess(false);
                 }, 2000);
-                
+
             }).catch((err) => {
                 setCopySuccess(false);
                 console.error("Failed to copy link to clipboard:", err);
@@ -127,7 +160,7 @@ export function ShareItemModal({
                                     Share Link: 
                                 </FieldLabel>
                                 <Input 
-                                    value={`https://example.com/share?expiration=${expiration}&permission=${permission}`}
+                                    value={link || ""}
                                     placeholder="https://example.com/share"
                                     readOnly
                                     className="bg-background w-full text-sm p-2 rounded-md border border-gray-400 *:focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -144,17 +177,7 @@ export function ShareItemModal({
                                     <span>
                                         Expires:{" "}
                                         <span className="font-medium text-foreground">
-                                            {expiration === "never"
-                                                ? "Never"
-                                                : expiration === "1"
-                                                ? "1 hour"
-                                                : expiration === "24"
-                                                ? "1 day"
-                                                : expiration === "168"
-                                                ? "7 days"
-                                                : expiration === "720"
-                                                ? "30 days"
-                                                : expiration}
+                                            {expirationItems.find((item) => item.value === expiration)?.label || "Unknown"}
                                         </span>
                                     </span>
                                 </div>
@@ -167,15 +190,7 @@ export function ShareItemModal({
                             </span>{" "}
                                 access to your schedule. The link expires{" "}
                             <span className="font-medium text-foreground">
-                                {expiration === "never"
-                                    ? "never"
-                                    : expiration === "1hour"
-                                    ? "in 1 hour"
-                                    : expiration === "1day"
-                                    ? "in 1 day"
-                                    : expiration === "7days"
-                                    ? "in 7 days"
-                                    : expiration}
+                                {expirationItems.find((item) => item.value === expiration)?.label || "Unknown"}
                             </span>
                             .
                         </FieldDescription>
