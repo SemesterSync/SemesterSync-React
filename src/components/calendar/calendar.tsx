@@ -1,6 +1,7 @@
 "use client";
 
 import clsx from "clsx";
+import { Edit, Palette, Trash } from "lucide-react";
 import { Fragment } from "react/jsx-runtime";
 import {
 	CAL_COLS,
@@ -11,8 +12,16 @@ import {
 } from "@/lib/calendar-utils";
 import { cn } from "@/lib/utils";
 import useUserStore from "@/stores/user-store";
-import type { CalendarCards } from "@/types/events";
-import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
+import type { CalendarCard, CalendarCards } from "@/types/events";
+import {
+	ContextMenu,
+	ContextMenuContent,
+	ContextMenuGroup,
+	ContextMenuItem,
+	ContextMenuLabel,
+	ContextMenuSeparator,
+	ContextMenuTrigger,
+} from "../ui/context-menu";
 import {
 	HoverCard,
 	HoverCardContent,
@@ -22,7 +31,25 @@ import { Separator } from "../ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { CalendarCardUI } from "./calendar-card";
 
-export default function Calendar({ events }: { events: CalendarCards }) {
+type CalendarProps = {
+	events: CalendarCards;
+
+	setModalData?: React.Dispatch<React.SetStateAction<CalendarCard | undefined>>;
+
+	setEditModalOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+	setEditColorModalOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+	setDeleteModalOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+	deleteShiftAction?: (eventId: string) => void;
+};
+
+export default function Calendar({
+	events,
+	setModalData,
+	setEditModalOpen,
+	setEditColorModalOpen,
+	setDeleteModalOpen,
+	deleteShiftAction,
+}: CalendarProps) {
 	const activeTab = useUserStore((state) => state.getActiveTab());
 
 	const days = [
@@ -265,45 +292,62 @@ export default function Calendar({ events }: { events: CalendarCards }) {
 									)}
 								</HoverCardContent>
 
-								{/* <ContextMenuContent>
-									<ContextMenuItem
-										onClick={() => {
-											setIsEditModalOpen(true);
-											setModalEvent(event);
-										}}
-									>
-										<Edit /> Edit
-									</ContextMenuItem>
+								{(setEditColorModalOpen ||
+									setEditModalOpen ||
+									(setDeleteModalOpen && deleteShiftAction)) &&
+								setModalData ? (
+									<ContextMenuContent>
+										{setEditModalOpen && (
+											<ContextMenuItem
+												onClick={() => {
+													setEditModalOpen(true);
+													setModalData(event);
+												}}
+											>
+												<Edit /> Edit
+											</ContextMenuItem>
+										)}
 
-									<ContextMenuItem
-										onClick={() => {
-											setIsColorModalOpen(true);
-											setModalEvent(event);
-										}}
-									>
-										<Palette /> Change Color
-									</ContextMenuItem>
+										{setEditColorModalOpen && (
+											<ContextMenuItem
+												onClick={() => {
+													setEditColorModalOpen(true);
+													setModalData(event);
+												}}
+											>
+												<Palette /> Change Color
+											</ContextMenuItem>
+										)}
 
-									<ContextMenuSeparator />
+										{setDeleteModalOpen && deleteShiftAction && (
+											<>
+												{(setEditColorModalOpen || setEditModalOpen) && (
+													<ContextMenuSeparator />
+												)}
 
-									<ContextMenuItem
-										variant="destructive"
-										onClick={(e) => {
-											if (e.shiftKey) {
-												removeEvent(activeTab.id, event.id);
-												toast.add({
-													title: "Event Deleted Successfully",
-													type: "success",
-												});
-											} else {
-												setIsDeleteModalOpen(true);
-												setModalEvent(event);
-											}
-										}}
-									>
-										<Trash /> Delete
-									</ContextMenuItem>
-								</ContextMenuContent> */}
+												<ContextMenuItem
+													variant="destructive"
+													onClick={(e) => {
+														if (e.shiftKey) {
+															deleteShiftAction(event.id);
+														} else {
+															setDeleteModalOpen(true);
+															setModalData(event);
+														}
+													}}
+												>
+													<Trash /> Delete
+												</ContextMenuItem>
+											</>
+										)}
+									</ContextMenuContent>
+								) : (
+									<ContextMenuContent>
+										<ContextMenuGroup>
+											<ContextMenuLabel>No actions available</ContextMenuLabel>
+										</ContextMenuGroup>
+									</ContextMenuContent>
+								)}
 							</ContextMenu>
 						</HoverCard>
 					);
