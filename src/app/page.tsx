@@ -1,4 +1,4 @@
-import CalendarContainer from "@/components/calendar-container";
+import Calendar from "@/components/calendar/calendar";
 import AppHeader from "@/components/header/app-header";
 import TabList from "@/components/tab-list";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -12,7 +12,8 @@ export default async function Page() {
 				<TabList />
 
 				<ScrollArea className="h-[89vh] rounded-t-lg">
-					<CalendarContainer />
+					{/* <CalendarContainer /> */}
+					<Calendar />
 				</ScrollArea>
 			</main>
 		</div>
