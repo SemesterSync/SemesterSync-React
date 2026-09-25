@@ -14,7 +14,7 @@ import type {
 	SectionResponse,
 } from "@/types/courses";
 import type { CalendarCard, CalendarCards } from "@/types/events";
-import { CalendarCardUI } from "./events/calendar-card";
+import { CalendarCardUI } from "./calendar/calendar-card";
 import DangerModal from "./modals/danger";
 import EditColorModal from "./modals/events/edit-color";
 import EditEventModal from "./modals/events/edit-event/edit-event";
