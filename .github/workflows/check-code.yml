@@ -12,6 +12,12 @@ jobs:
   format:
     runs-on: ubuntu-latest
     name: Format Files
+
+    permissions:
+      # Give the default GITHUB_TOKEN write permission to commit and push the
+      # added or changed files to the repository.
+      contents: write
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,7 +39,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: stefanzweifel/git-auto-commit-action@v4
+      - uses: stefanzweifel/git-auto-commit-action@v7
         id: format-files
         with:
           commit_message: "chore: format files"
