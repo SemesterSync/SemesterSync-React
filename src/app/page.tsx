@@ -13,7 +13,7 @@ export default async function Page() {
 
 				<ScrollArea className="h-[89vh] rounded-t-lg">
 					{/* <CalendarContainer /> */}
-					<Calendar />
+					<Calendar events={[]} />
 				</ScrollArea>
 			</main>
 		</div>
