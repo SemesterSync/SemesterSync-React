@@ -73,6 +73,7 @@ export default function CourseAddList({
 	const [selectedSection, setSelectedSection] = useState<Array<string>>([]);
 
 	const [isSearchInputFocused, setIsSearchInputFocused] = useState(false);
+	const [showSearchHint, setShowSearchHint] = useState(false);
 	const searchInputRef = useRef<HTMLInputElement>(null);
 
 	useEffect(() => {
@@ -134,6 +135,14 @@ export default function CourseAddList({
 		setSelectedSection(extSelectedSections);
 	}, [externalSelectedSection]);
 
+	useEffect(() => {
+		if (searchQuery.endsWith("@") || searchQuery.length === 0) {
+			setShowSearchHint(isSearchInputFocused);
+		} else {
+			setShowSearchHint(false);
+		}
+	}, [searchQuery, isSearchInputFocused]);
+
 	const [scrollParentRef, setScrollParentRef] = useState<HTMLDivElement | null>(
 		null,
 	);
@@ -181,9 +190,7 @@ export default function CourseAddList({
 										setSearchQuery(e.target.value);
 									}}
 									onFocus={() => setIsSearchInputFocused(true)}
-									onBlur={() =>
-										setTimeout(() => setIsSearchInputFocused(false), 200)
-									}
+									onBlur={() => setIsSearchInputFocused(false)}
 									ref={searchInputRef}
 								/>
 							</motion.div>
@@ -218,9 +225,14 @@ export default function CourseAddList({
 					</AnimatePresence>
 				</div>
 
-				{isSearchInputFocused && searchInputRef.current && (
+				{searchInputRef.current && (
 					<div
-						className="bg-background rounded-md p-2 border border-border absolute z-10 shadow-lg"
+						className={clsx(
+							"bg-background rounded-md p-1 border border-border absolute z-10 shadow-lg",
+							{
+								hidden: !showSearchHint,
+							},
+						)}
 						style={{
 							width: searchInputRef.current.getBoundingClientRect().width,
 						}}
@@ -228,12 +240,14 @@ export default function CourseAddList({
 						<Button
 							variant="ghost"
 							className="w-full justify-start"
-							onClick={() =>
+							onMouseDown={(e) => {
+								e.preventDefault();
+
 								setSearchQuery(
 									(prev) =>
 										(prev += `${prev.length === 0 ? "" : " "}@selected`),
-								)
-							}
+								);
+							}}
 						>
 							@selected{" "}
 							<span className="text-muted-foreground">
