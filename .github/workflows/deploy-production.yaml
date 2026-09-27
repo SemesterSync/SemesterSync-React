@@ -1,0 +1,81 @@
+name: Deploy Production
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: semestersync-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy SemesterSync
+    runs-on:
+      - self-hosted
+      - production
+
+    steps:
+      - name: Deploy latest commit
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cd /var/www/semestersync
+
+          echo "Deploying GitHub commit: $GITHUB_SHA"
+
+          git fetch --prune origin main
+
+          # Refuse to deploy anything except the exact commit GitHub
+          # says was pushed to main.
+          git cat-file -e "${GITHUB_SHA}^{commit}"
+
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "ERROR: $GITHUB_SHA is not on origin/main"
+            exit 1
+          fi
+
+          # Production becomes an exact copy of this main commit.
+          git reset --hard "$GITHUB_SHA"
+
+          echo "Production source is now:"
+          git log -1 --oneline
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /var/www/semestersync
+          pnpm install --frozen-lockfile
+
+      - name: Build production
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /var/www/semestersync
+          pnpm build
+
+      - name: Restart production
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          sudo -n /usr/bin/systemctl restart semestersync
+          sleep 2
+          sudo -n /usr/bin/systemctl is-active semestersync
+
+      - name: Verify deployed commit
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cd /var/www/semestersync
+
+          DEPLOYED_SHA="$(git rev-parse HEAD)"
+
+          echo "GitHub SHA:   $GITHUB_SHA"
+          echo "Deployed SHA: $DEPLOYED_SHA"
+
+          test "$DEPLOYED_SHA" = "$GITHUB_SHA"
