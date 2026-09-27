@@ -6,6 +6,8 @@ import { getAllTerms } from "@/data/terms";
 import DataProvider from "./data";
 import TanstackProvider from "./tanstack";
 
+const env = process.env.NODE_ENV;
+
 export default async function Providers({
 	children,
 }: {
@@ -20,7 +22,7 @@ export default async function Providers({
 
 	return (
 		<>
-			<TanstackProvider />
+			{env === "development" && <TanstackProvider />}
 			<DataProvider
 				terms={terms}
 				courses={courses}
