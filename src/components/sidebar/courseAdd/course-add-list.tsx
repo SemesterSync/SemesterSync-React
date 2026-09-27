@@ -2,7 +2,14 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import clsx from "clsx";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import {
+	Fragment,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -64,6 +71,9 @@ export default function CourseAddList({
 	const [showCourseSectionId, setShowCourseSectionId] = useState("-1");
 	const [selectedCourse, setSelectedCourse] = useState<Array<string>>([]);
 	const [selectedSection, setSelectedSection] = useState<Array<string>>([]);
+
+	const [isSearchInputFocused, setIsSearchInputFocused] = useState(false);
+	const searchInputRef = useRef<HTMLInputElement>(null);
 
 	useEffect(() => {
 		if (searchQuery === "") setFilteredCourses(courses);
@@ -152,54 +162,75 @@ export default function CourseAddList({
 
 	return (
 		<div className="flex flex-col gap-2">
-			<div className="relative overflow-hidden">
-				<AnimatePresence initial={false} mode="popLayout">
-					{showingCourses && (
-						<motion.div
-							animate="animate"
-							initial="initial"
-							exit="exit"
-							key="search"
-							variants={swipeLeftVariant}
-							transition={TRANSITION}
-						>
-							<Input
-								placeholder={`Search Courses...`} // TODO - Add back term name
-								value={searchQuery}
-								onChange={(e) => {
-									setSearchQuery(e.target.value);
-								}}
-							/>
-						</motion.div>
-					)}
-
-					{!showingCourses && (
-						<motion.div
-							animate="animate"
-							initial="initial"
-							exit="exit"
-							key="back"
-							variants={swipeRightVariant}
-							transition={TRANSITION}
-							whileTap={{ scale: shouldReduceMotion ? 1 : 0.98 }}
-						>
-							<Button
-								variant={"outline"}
-								className={"w-full"}
-								onClick={() => {
-									setShowingCourses(true);
-									virtualizer.scrollToIndex(
-										filteredCourses.findIndex(
-											(course) => course.id === showCourseSectionId,
-										) + 4,
-									);
-								}}
+			<div className="relative">
+				<div className="relative overflow-hidden">
+					<AnimatePresence initial={false} mode="popLayout">
+						{showingCourses && (
+							<motion.div
+								animate="animate"
+								initial="initial"
+								exit="exit"
+								key="search"
+								variants={swipeLeftVariant}
+								transition={TRANSITION}
 							>
-								<ChevronLeft /> Back
-							</Button>
-						</motion.div>
-					)}
-				</AnimatePresence>
+								<Input
+									placeholder={`Search Courses...`} // TODO - Add back term name
+									value={searchQuery}
+									onChange={(e) => {
+										setSearchQuery(e.target.value);
+									}}
+									onFocus={() => setIsSearchInputFocused(true)}
+									onBlur={() => setIsSearchInputFocused(false)}
+									ref={searchInputRef}
+								/>
+							</motion.div>
+						)}
+
+						{!showingCourses && (
+							<motion.div
+								animate="animate"
+								initial="initial"
+								exit="exit"
+								key="back"
+								variants={swipeRightVariant}
+								transition={TRANSITION}
+								whileTap={{ scale: shouldReduceMotion ? 1 : 0.98 }}
+							>
+								<Button
+									variant={"outline"}
+									className={"w-full"}
+									onClick={() => {
+										setShowingCourses(true);
+										virtualizer.scrollToIndex(
+											filteredCourses.findIndex(
+												(course) => course.id === showCourseSectionId,
+											) + 4,
+										);
+									}}
+								>
+									<ChevronLeft /> Back
+								</Button>
+							</motion.div>
+						)}
+					</AnimatePresence>
+				</div>
+
+				{isSearchInputFocused && searchInputRef.current && (
+					<div
+						className="bg-background rounded-md p-2 border border-border absolute z-10 shadow-lg"
+						style={{
+							width: searchInputRef.current.getBoundingClientRect().width,
+						}}
+					>
+						<Button variant="ghost" className="w-full justify-start">
+							@selected{" "}
+							<span className="text-muted-foreground">
+								- shows all of the currently selected courses
+							</span>
+						</Button>
+					</div>
+				)}
 			</div>
 
 			<Separator />
