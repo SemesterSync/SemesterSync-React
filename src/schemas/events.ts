@@ -12,8 +12,8 @@ export const eventGenericsSchema = z.object({
 export const linkedEventSchema = z.object({
 	kind: z.literal("linked-course"),
 
-	courseId: z.coerce.number(),
-	sectionId: z.coerce.number(),
+	courseId: z.string(),
+	sectionId: z.string(),
 	termCode: z.string(),
 
 	staticCourseCredits: z.number(),
