@@ -181,7 +181,9 @@ export default function CourseAddList({
 										setSearchQuery(e.target.value);
 									}}
 									onFocus={() => setIsSearchInputFocused(true)}
-									onBlur={() => setIsSearchInputFocused(false)}
+									onBlur={() =>
+										setTimeout(() => setIsSearchInputFocused(false), 200)
+									}
 									ref={searchInputRef}
 								/>
 							</motion.div>
@@ -223,7 +225,16 @@ export default function CourseAddList({
 							width: searchInputRef.current.getBoundingClientRect().width,
 						}}
 					>
-						<Button variant="ghost" className="w-full justify-start">
+						<Button
+							variant="ghost"
+							className="w-full justify-start"
+							onClick={() =>
+								setSearchQuery(
+									(prev) =>
+										(prev += `${prev.length === 0 ? "" : " "}@selected`),
+								)
+							}
+						>
 							@selected{" "}
 							<span className="text-muted-foreground">
 								- shows all of the currently selected courses
