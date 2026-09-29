@@ -42,6 +42,7 @@ export default function MiniCalendar({
 	collapsed?: boolean;
 }) {
 	const activeTab = useUserStore((state) => state.getActiveTab());
+	console.log("activeTab", activeTab);
 	const updataTabDate = useUserStore((state) => state.updateTabDate);
 
 	const [selectedDate, setSelectedDate] = useState<Date>(

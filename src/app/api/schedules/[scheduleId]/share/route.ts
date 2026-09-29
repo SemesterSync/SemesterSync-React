@@ -12,6 +12,8 @@ export async function POST(
     try {
         const { scheduleId } = await params;
 
+        console.log("scheduleId:", scheduleId);
+
         const body = await request.json();
 
         const {
@@ -93,14 +95,13 @@ export async function POST(
 
         const url = `${origin}/shared/schedule/${token}`;
 
-        console.log("Creating share link:", {
-            scheduleId,
-            permission,
-            expiration,
-            url,
-        });
+        // console.log("Creating share link:", {
+        //     scheduleId,
+        //     permission,
+        //     expiration,
+        //     url,
+        // });
 
-        // Database insert will go here.
 
         return NextResponse.json({
             url,
