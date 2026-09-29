@@ -1,4 +1,4 @@
-name: Format & Lint Code
+name: Code Checks
 on:
   pull_request:
     branches:
@@ -27,9 +27,9 @@ jobs:
         with:
           version: latest
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v7
         with:
-          node-version: "18.x"
+          node-version: "25.x"
           cache: "pnpm"
 
       - run: pnpm i --no-frozen-lockfile
@@ -64,9 +64,9 @@ jobs:
         with:
           version: latest
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v7
         with:
-          node-version: "18.x"
+          node-version: "25.x"
           cache: "pnpm"
 
       - run: pnpm i --no-frozen-lockfile
@@ -75,3 +75,28 @@ jobs:
         run: pnpm run lint:nw
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build:
+    runs-on: ubuntu-latest
+    name: Build App
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "25.x"
+          cache: "pnpm"
+
+      - run: pnpm i --no-frozen-lockfile
+
+      - name: Next Build
+        run: pnpm run build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DATABASE_URL: "mysql://fake:fake@fake:3306/fake"

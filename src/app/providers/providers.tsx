@@ -6,6 +6,9 @@ import { getAllTerms } from "@/data/terms";
 import DataProvider from "./data";
 import TanstackProvider from "./tanstack";
 
+//TODO - Remove this & replace with front end API fetching
+export const dynamic = "force-dynamic";
+
 const env = process.env.NODE_ENV;
 
 export default async function Providers({
