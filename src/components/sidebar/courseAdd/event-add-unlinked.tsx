@@ -17,7 +17,6 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/components/ui/toast";
-import type { TermResponse } from "@/data/terms";
 import { useAppForm } from "@/hooks/use-form";
 import { createSwipeRightVariant, TRANSITION } from "@/lib/animation";
 import type { Event, UnlinkedEventVariantMeeting } from "@/schemas/events";
@@ -25,24 +24,23 @@ import {
 	type MeetingAddType,
 	unlinkedEventAddSchema,
 } from "@/schemas/unlinked-event";
+import useCourseStore from "@/stores/course-store";
 import useUserStore from "@/stores/user-store";
-import type {
-	AssembledCourseSingleSection,
-	CourseResponse,
-} from "@/types/courses";
+import type { SectionResponse } from "@/types/courses";
 import CourseAddList, { mergeMeetings } from "./course-add-list";
 
 type EventAddUnlinkedProps = {
-	terms: TermResponse;
-	courses: CourseResponse;
 	setSelectedOption: React.Dispatch<React.SetStateAction<string>>;
 	closeParentModal: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const EventAddUnlinked = forwardRef<HTMLDivElement, EventAddUnlinkedProps>(
-	({ terms, courses, setSelectedOption, closeParentModal }, ref) => {
-		const [selectedCourse, setSelectedCourse] = useState<
-			Array<AssembledCourseSingleSection>
+	({ setSelectedOption, closeParentModal }, ref) => {
+		const getCourse = useCourseStore((state) => state.getCourse);
+		const getMeetings = useCourseStore((state) => state.getMeetings);
+
+		const [selectedSection, setSelectedSection] = useState<
+			Array<SectionResponse>
 		>([]);
 		const [initialDate] = useState(() => new Date());
 		const [isResetModalOpen, setIsResetModalOpen] = useState(false);
@@ -74,8 +72,6 @@ const EventAddUnlinked = forwardRef<HTMLDivElement, EventAddUnlinkedProps>(
 			},
 			onSubmit: (values) => {
 				const formData = values.value;
-
-				if (typeof terms === "number") return;
 
 				const event: Event = {
 					eventId: uuidv4(),
@@ -114,47 +110,51 @@ const EventAddUnlinked = forwardRef<HTMLDivElement, EventAddUnlinkedProps>(
 					description: "Event added to calendar",
 				});
 				form.reset();
-				setSelectedCourse([]);
+				setSelectedSection([]);
 				setSelectedOption("none");
 			},
 		});
 
 		useEffect(() => {
-			if (selectedCourse.length !== 1) return;
+			if (selectedSection.length !== 1) return;
 
-			const course = selectedCourse[0];
-			form.setFieldValue("courseCode", course.course_code);
-			form.setFieldValue("courseTitle", course.course_title);
-			form.setFieldValue("credits", course.credits);
-			form.setFieldValue("section.sectionCode", course.section.section_code);
-			form.setFieldValue(
-				"section.deliveryMethod",
-				course.section.delivery_method,
-			);
-			form.setFieldValue("section.startDate", course.section.start_date);
-			form.setFieldValue("section.endDate", course.section.end_date);
+			const section = selectedSection[0];
+			const course = getCourse(section.courseId);
+			const unmergedMeetings = getMeetings(section.courseId);
 
-			const meetings = mergeMeetings(course.section.meetings);
+			if (!course) return;
+
+			form.setFieldValue("courseCode", course.code);
+			form.setFieldValue("courseTitle", course.title);
+			form.setFieldValue("credits", course.credits.toString());
+			form.setFieldValue("section.sectionCode", section.code);
+			form.setFieldValue("section.deliveryMethod", section.deliveryMethod);
+			form.setFieldValue("section.startDate", section.startDate);
+			form.setFieldValue("section.endDate", section.endDate);
+
+			const meetings = mergeMeetings(unmergedMeetings);
 			const formattedMeetings: Array<MeetingAddType> = [];
 			for (const meeting of meetings) {
 				formattedMeetings.push({
 					days: meeting.days,
-					startTime: meeting.start_time.toTimeString().slice(0, 5),
-					endTime: meeting.end_time.toTimeString().slice(0, 5),
+					startTime: meeting.startTime.toTimeString().slice(0, 5),
+					endTime: meeting.endTime.toTimeString().slice(0, 5),
 					campus: meeting.campus,
-					building: meeting.building.long,
-					room: meeting.room.name || "",
-					instructors: meeting.instructors.map((instructor) => ({
-						id: uuidv4(),
-						firstName: instructor.first_name,
-						lastName: instructor.last_name,
-					})),
+					building: meeting.building?.name || "",
+					room: meeting.room || "",
+					instructors: meeting.instructors.map((instructor) => {
+						const ins = instructor.split(" ");
+
+						return {
+							id: uuidv4(),
+							firstName: ins[0],
+							lastName: ins[1],
+						};
+					}),
 				});
 			}
 			form.setFieldValue("section.meetings", formattedMeetings);
-		}, [selectedCourse, form.setFieldValue]);
-
-		if (typeof terms === "number") return null;
+		}, [selectedSection, form.setFieldValue, getCourse, getMeetings]);
 
 		return (
 			<motion.div
@@ -180,7 +180,7 @@ const EventAddUnlinked = forwardRef<HTMLDivElement, EventAddUnlinkedProps>(
 								triggerOnClick={() => {
 									if (isDefaultValue) {
 										form.reset();
-										setSelectedCourse([]);
+										setSelectedSection([]);
 										setSelectedOption("none");
 									} else {
 										closeParentModal(true);
@@ -189,7 +189,7 @@ const EventAddUnlinked = forwardRef<HTMLDivElement, EventAddUnlinkedProps>(
 								cancelOnClick={() => closeParentModal(false)}
 								actionOnClick={() => {
 									form.reset();
-									setSelectedCourse([]);
+									setSelectedSection([]);
 									setIsBackResetModalOpen(false);
 									closeParentModal(false);
 									setTimeout(() => setSelectedOption("none"), 150);
@@ -211,9 +211,8 @@ const EventAddUnlinked = forwardRef<HTMLDivElement, EventAddUnlinkedProps>(
 							className="w-(--anchor-width)"
 						>
 							<CourseAddList
-								courses={courses}
-								selectedCourse={selectedCourse}
-								setSelectedCourse={setSelectedCourse}
+								selectedSection={selectedSection}
+								setSelectedSection={setSelectedSection}
 							/>
 						</PopoverContent>
 					</Popover>
@@ -228,7 +227,7 @@ const EventAddUnlinked = forwardRef<HTMLDivElement, EventAddUnlinkedProps>(
 						cancelOnClick={() => closeParentModal(false)}
 						actionOnClick={() => {
 							form.reset();
-							setSelectedCourse([]);
+							setSelectedSection([]);
 							setIsResetModalOpen(false);
 							closeParentModal(false);
 						}}
@@ -246,7 +245,7 @@ const EventAddUnlinked = forwardRef<HTMLDivElement, EventAddUnlinkedProps>(
 							form.handleSubmit();
 						}}
 					>
-						<UnlinkedEventFormFields form={form} terms={terms} />
+						<UnlinkedEventFormFields form={form} />
 
 						<Separator className="my-2" />
 
@@ -263,7 +262,7 @@ const EventAddUnlinked = forwardRef<HTMLDivElement, EventAddUnlinkedProps>(
 								cancelOnClick={() => closeParentModal(false)}
 								actionOnClick={() => {
 									form.reset();
-									setSelectedCourse([]);
+									setSelectedSection([]);
 									setIsResetModalOpen(false);
 									closeParentModal(false);
 								}}

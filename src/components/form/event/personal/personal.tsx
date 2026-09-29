@@ -39,18 +39,17 @@ import {
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import type { TermResponse } from "@/data/terms";
 import { withForm } from "@/hooks/use-form";
 import { cn, defaultColors } from "@/lib/utils";
 import type { PersonalEventMeetingAddType } from "@/schemas/personal-event";
+import useCourseStore from "@/stores/course-store";
 import { personalEventFormOpts } from "./personal-opts";
 
 export const PersonalEventFormFields = withForm({
 	...personalEventFormOpts,
-	props: {
-		terms: [] as Exclude<TermResponse, number>,
-	},
-	render: ({ form, terms }) => {
+	render: ({ form }) => {
+		const terms = useCourseStore((state) => state.terms);
+
 		const [meetingsIsOpen, setMeetingsIsOpen] = useState(true);
 		const [dateTemp, setDateTemp] = useState<DateRange | undefined>({
 			from: form.state.values.startDate,
@@ -77,8 +76,7 @@ export const PersonalEventFormFields = withForm({
 								<FieldLabel>Term</FieldLabel>
 								<Input
 									value={
-										terms.find((term) => term.term_code === field.state.value)
-											?.term_name
+										terms.find((term) => term.code === field.state.value)?.name
 									}
 									readOnly
 									disabled

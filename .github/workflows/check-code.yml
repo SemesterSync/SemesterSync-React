@@ -1,0 +1,102 @@
+name: Code Checks
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    name: Format Files
+
+    permissions:
+      # Give the default GITHUB_TOKEN write permission to commit and push the
+      # added or changed files to the repository.
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "25.x"
+          cache: "pnpm"
+
+      - run: pnpm i --no-frozen-lockfile
+
+      - name: Biome Formatter
+        run: pnpm run format
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: stefanzweifel/git-auto-commit-action@v7
+        id: format-files
+        with:
+          commit_message: "chore: format files"
+          skip_checkout: true
+          branch: ${{ github.head_ref }}
+          create_branch: false
+
+      - name: Push changes
+        if: steps.format-files.outputs.changes_detected == 'true'
+        run: |
+          git push origin ${{ github.head_ref }}
+
+  lint:
+    runs-on: ubuntu-latest
+    name: Lint Files
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "25.x"
+          cache: "pnpm"
+
+      - run: pnpm i --no-frozen-lockfile
+
+      - name: Biome Linter
+        run: pnpm run lint:nw
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build:
+    runs-on: ubuntu-latest
+    name: Build App
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "25.x"
+          cache: "pnpm"
+
+      - run: pnpm i --no-frozen-lockfile
+
+      - name: Next Build
+        run: pnpm run build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DATABASE_URL: "mysql://fake:fake@fake:3306/fake"

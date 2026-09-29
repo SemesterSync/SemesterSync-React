@@ -41,18 +41,16 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import type { TermResponse } from "@/data/terms";
 import { withForm } from "@/hooks/use-form";
 import { cn, defaultColors } from "@/lib/utils";
+import useCourseStore from "@/stores/course-store";
 import { unlinkedEventFormOpts } from "./unlinked-opts";
 
 export const UnlinkedEventFormFields = withForm({
 	...unlinkedEventFormOpts,
-	props: {
-		terms: [] as Exclude<TermResponse, number>,
-	},
-	render: ({ form, terms }) => {
+	render: ({ form }) => {
 		const [meetingsIsOpen, setMeetingsIsOpen] = useState(true);
+		const terms = useCourseStore((state) => state.terms);
 
 		return (
 			<FieldGroup>
@@ -67,8 +65,7 @@ export const UnlinkedEventFormFields = withForm({
 								<FieldLabel>Term</FieldLabel>
 								<Input
 									value={
-										terms.find((term) => term.term_code === field.state.value)
-											?.term_name
+										terms.find((term) => term.code === field.state.value)?.name
 									}
 									readOnly
 									disabled

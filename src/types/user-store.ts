@@ -14,8 +14,8 @@ export const userTabSchema = z.object({
 });
 
 export const userStateSchema = z.object({
-	activeTab: z.uuidv4(),
-	activeTerm: z.string(),
+	activeTab: z.uuidv4().describe("The UUID V4 of the currently active tab"),
+	activeTerm: z.string().describe("The code of the currently active term"),
 	tabs: z.array(userTabSchema),
 });
 

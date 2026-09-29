@@ -13,11 +13,9 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import type { TermResponse } from "@/data/terms";
 import { crateSwipeLeftVariant, TRANSITION } from "@/lib/animation";
 import { cn } from "@/lib/utils";
 import useUserStore from "@/stores/user-store";
-import type { CourseResponse } from "@/types/courses";
 import EventAddLinked from "./event-add-linked";
 import EventAddPersonal from "./event-add-personal";
 import EventAddUnlinked from "./event-add-unlinked";
@@ -46,13 +44,7 @@ const selectOptions = [
 	},
 ];
 
-export default function EventAddModalClient({
-	termsRes,
-	courses,
-}: {
-	termsRes: TermResponse;
-	courses: CourseResponse;
-}) {
+export default function EventAddModal() {
 	const activeTerm = useUserStore((state) => state.activeTerm);
 
 	const [selectedOption, setSelectedOption] = useState("none");
@@ -139,7 +131,6 @@ export default function EventAddModalClient({
 
 							{selectedOption === "linked" && (
 								<EventAddLinked
-									courses={courses}
 									setSelectedOption={setSelectedOption}
 									closeParentModal={setModalContentShown}
 								/>
@@ -147,8 +138,6 @@ export default function EventAddModalClient({
 
 							{selectedOption === "manual" && (
 								<EventAddUnlinked
-									terms={termsRes}
-									courses={courses}
 									setSelectedOption={setSelectedOption}
 									closeParentModal={setModalContentShown}
 								/>
@@ -156,7 +145,6 @@ export default function EventAddModalClient({
 
 							{selectedOption === "personal" && (
 								<EventAddPersonal
-									terms={termsRes}
 									setSelectedOption={setSelectedOption}
 									closeParentModal={setModalContentShown}
 								/>

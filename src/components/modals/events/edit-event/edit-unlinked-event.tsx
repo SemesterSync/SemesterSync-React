@@ -10,7 +10,6 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/components/ui/toast";
-import type { TermResponse } from "@/data/terms";
 import { useAppForm } from "@/hooks/use-form";
 import type { Event, UnlinkedEventVariantMeeting } from "@/schemas/events";
 import {
@@ -19,12 +18,9 @@ import {
 	unlinkedEventAddSchema,
 } from "@/schemas/unlinked-event";
 import useUserStore from "@/stores/user-store";
-import type { CourseResponse } from "@/types/courses";
 
 type EditUnlinkedEventProps = {
 	eventId: string;
-	terms: TermResponse;
-	courses: CourseResponse;
 
 	cancelOnClick?: () => void;
 	actionSecondaryOnClick?: () => void;
@@ -32,8 +28,6 @@ type EditUnlinkedEventProps = {
 
 export default function EditUnlinkedEvent({
 	eventId,
-	terms,
-	courses,
 
 	cancelOnClick,
 	actionSecondaryOnClick,
@@ -87,8 +81,6 @@ export default function EditUnlinkedEvent({
 		onSubmit: (values) => {
 			const formData = values.value;
 
-			if (typeof terms === "number") return;
-
 			const event: Event = {
 				eventId: eventData?.eventId || "",
 				color: formData.color,
@@ -132,8 +124,7 @@ export default function EditUnlinkedEvent({
 		},
 	});
 
-	if (!eventData || typeof courses === "number" || typeof terms === "number")
-		return null;
+	if (!eventData) return null;
 
 	return (
 		<ScrollArea className="h-[60vh]">
@@ -145,7 +136,7 @@ export default function EditUnlinkedEvent({
 					form.handleSubmit();
 				}}
 			>
-				<UnlinkedEventFormFields form={form} terms={terms} />
+				<UnlinkedEventFormFields form={form} />
 
 				<Separator className="my-2" />
 

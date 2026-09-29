@@ -3,7 +3,10 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "@/styles/globals.css";
 import DisclaimerModal from "@/components/modals/disclaimer";
 import AppSidebar from "@/components/sidebar/app-sidebar";
-import Providers from "./providers";
+import Providers from "./providers/providers";
+
+//TODO - Remove this & replace with front end API fetching
+export const dynamic = "force-dynamic";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -23,7 +26,7 @@ export const metadata: Metadata = {
 		"An easy to use tool to create and manage your semesters schedules.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
