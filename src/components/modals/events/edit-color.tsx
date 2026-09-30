@@ -2,7 +2,7 @@
 
 import { Palette } from "lucide-react";
 import { useEffect, useState } from "react";
-import { CalendarCardUI } from "@/components/events/calendar-card";
+import { CalendarCardUI } from "@/components/calendar/calendar-card";
 import { EventListCardUI } from "@/components/events/list-card";
 import {
 	AlertDialog,
