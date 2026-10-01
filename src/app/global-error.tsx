@@ -59,7 +59,7 @@ export default function GlobalErrorPage({
 						it.
 					</p>
 
-					<Button onClick={() => navigation.reload()}>Reload</Button>
+					<Button onClick={() => window.location.reload()}>Reload</Button>
 				</div>
 			</body>
 		</html>
