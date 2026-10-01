@@ -3,12 +3,15 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
 import * as Sentry from "@sentry/nextjs";
+import { env } from "@/config/env";
 
 Sentry.init({
 	dsn: "https://7eac5a45add1b48cc7364a53be7c4a53@sentry.semestersync.org/2",
 
 	// Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
 	tracesSampleRate: 1,
+
+	release: env.SENTRY_RELEASE,
 
 	dataCollection: {
 		// To disable sending user data and HTTP bodies, uncomment the lines below. For more info visit:

@@ -10,6 +10,7 @@ export const env = createEnv({
 
 		BUILD_VERSION: z.string().min(1).default("development"),
 		BUILD_COMMIT: z.string().min(1).default("N/A"),
+		SENTRY_RELEASE: z.string().min(1).default("semestersync@development-na"),
 	},
 	client: {
 		NEXT_PUBLIC_BUILD_VERSION: z.string().min(1).default("development"),
@@ -24,6 +25,7 @@ export const env = createEnv({
 		// Versioning
 		BUILD_VERSION: process.env.BUILD_VERSION,
 		BUILD_COMMIT: process.env.BUILD_COMMIT,
+		SENTRY_RELEASE: process.env.SENTRY_RELEASE,
 		NEXT_PUBLIC_BUILD_VERSION: process.env.NEXT_PUBLIC_BUILD_VERSION,
 		NEXT_PUBLIC_BUILD_COMMIT: process.env.NEXT_PUBLIC_BUILD_COMMIT,
 	},

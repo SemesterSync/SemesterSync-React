@@ -1,6 +1,6 @@
 import { withSentryConfig } from "@sentry/nextjs/config";
 import type { NextConfig } from "next";
-import "@/config/env";
+import { env } from "@/config/env";
 
 const nextConfig: NextConfig = {
 	experimental: {
@@ -28,6 +28,10 @@ export default withSentryConfig(nextConfig, {
 
 	// Only print logs for uploading source maps in CI
 	silent: !process.env.CI,
+
+	release: {
+		name: env.SENTRY_RELEASE,
+	},
 
 	// For all available options, see:
 	// https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
