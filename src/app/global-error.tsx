@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import "@/styles/globals.css";
 import * as Sentry from "@sentry/nextjs";
 import type { Metadata } from "next";
-import type Error from "next/error";
+import type NextError from "next/error";
 import { Inter } from "next/font/google";
 import { useEffect } from "react";
 
@@ -36,10 +36,8 @@ const listOfTitles = [
 
 export default function GlobalErrorPage({
 	error,
-	retry,
 }: {
-	error: Error & { digest?: string };
-	retry: () => void;
+	error: NextError & { digest?: string };
 }) {
 	useEffect(() => {
 		Sentry.captureException(error);
