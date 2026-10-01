@@ -89,7 +89,19 @@ const useUserStore = create<UserStore>()(
 				}),
 			removeTab: (
 				id: string, // set tabs arr to the old arr - the tab w/ matching id
-			) => set({ tabs: get().tabs.filter((tab) => tab.id !== id) }),
+			) => {
+				set({ tabs: get().tabs.filter((tab) => tab.id !== id) });
+
+				// check if the current tab is the one being removed
+				if (get().activeTab === id) {
+					// make sure there is at least one tab
+					if (get().tabs.length === 0) {
+						get().addTab();
+					}
+					// replace active tab with the first tab since current tab was removed
+					set({ activeTab: get().tabs[0].id });
+				}
+			},
 
 			setActiveTerm: (term: string) => set({ activeTerm: term }),
 
