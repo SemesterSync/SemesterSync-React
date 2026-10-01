@@ -1,12 +1,14 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { env } from "@/config/env";
 import "@/styles/globals.css";
 import * as Sentry from "@sentry/nextjs";
+import { Check, Copy } from "lucide-react";
 import type { Metadata } from "next";
 import type NextError from "next/error";
 import { Inter } from "next/font/google";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -39,11 +41,14 @@ export default function GlobalErrorPage({
 }: {
 	error: NextError & { digest?: string };
 }) {
+	const [copied, setCopied] = useState(false);
+	const [title, _setTitle] = useState(
+		listOfTitles[Math.floor(Math.random() * listOfTitles.length)],
+	);
+
 	useEffect(() => {
 		Sentry.captureException(error);
 	}, [error]);
-
-	const title = listOfTitles[Math.floor(Math.random() * listOfTitles.length)];
 
 	return (
 		<html lang="en" className={inter.className}>
@@ -58,6 +63,25 @@ export default function GlobalErrorPage({
 						Don't worry though, we've tracked this error and will get right on
 						it.
 					</p>
+					<div className="flex flex-row items-center gap-2 w-full justify-center">
+						<p className="text-muted-foreground text-xs">
+							Build: {env.NEXT_PUBLIC_BUILD_VERSION} (
+							{env.NEXT_PUBLIC_BUILD_COMMIT})
+						</p>
+						<Button
+							onClick={() => {
+								navigator.clipboard.writeText(
+									`Build: ${env.NEXT_PUBLIC_BUILD_VERSION}; Commit: ${env.NEXT_PUBLIC_BUILD_COMMIT}`,
+								);
+								setCopied(true);
+								setTimeout(() => setCopied(false), 2000);
+							}}
+							size={"icon-xs"}
+							variant={copied ? "success" : "secondary"}
+						>
+							{copied ? <Check /> : <Copy />}
+						</Button>
+					</div>
 
 					<Button onClick={() => window.location.reload()}>Reload</Button>
 				</div>
