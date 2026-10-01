@@ -56,6 +56,52 @@ jobs:
           echo "Production source is now:"
           git log -1 --oneline
 
+      - name: Generate build version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cd /var/www/semestersync
+
+          DATE="$(date -u +"%Y.%m.%d")"
+          SHORT_SHA="$(git rev-parse --short=7 HEAD)"
+
+          BUILD_VERSION="${DATE}.${GITHUB_RUN_NUMBER}"
+          SENTRY_RELEASE="semestersync@${BUILD_VERSION}-${SHORT_SHA}"
+
+          echo "Generated build information:"
+          echo "  Build:   $BUILD_VERSION"
+          echo "  Commit:  $SHORT_SHA"
+          echo "  Release: $SENTRY_RELEASE"
+
+          # Make values available to later GitHub Actions steps.
+          {
+            echo "BUILD_VERSION=$BUILD_VERSION"
+            echo "NEXT_PUBLIC_BUILD_VERSION=$BUILD_VERSION"
+            echo "BUILD_COMMIT=$GITHUB_SHA"
+            echo "NEXT_PUBLIC_BUILD_COMMIT=$SHORT_SHA"
+            echo "SENTRY_RELEASE=$SENTRY_RELEASE"
+          } >> "$GITHUB_ENV"
+
+          # Also persist the values into the production .env so that
+          # the Next.js server can access them after systemd restarts it.
+          set_env() {
+            KEY="$1"
+            VALUE="$2"
+
+            if grep -q "^${KEY}=" .env; then
+              sed -i "s|^${KEY}=.*|${KEY}=${VALUE}|" .env
+            else
+              printf '%s=%s\n' "$KEY" "$VALUE" >> .env
+            fi
+          }
+
+          set_env "BUILD_VERSION" "$BUILD_VERSION"
+          set_env "NEXT_PUBLIC_BUILD_VERSION" "$BUILD_VERSION"
+          set_env "BUILD_COMMIT" "$GITHUB_SHA"
+          set_env "NEXT_PUBLIC_BUILD_COMMIT" "$SHORT_SHA"
+          set_env "SENTRY_RELEASE" "$SENTRY_RELEASE"
+
       - name: Install dependencies
         shell: bash
         run: |
