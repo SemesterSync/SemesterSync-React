@@ -2,7 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import "@/styles/globals.css";
+import * as Sentry from "@sentry/nextjs";
 import type { Metadata } from "next";
+import type Error from "next/error";
 import { Inter } from "next/font/google";
 import { useEffect } from "react";
 
@@ -40,7 +42,7 @@ export default function GlobalErrorPage({
 	retry: () => void;
 }) {
 	useEffect(() => {
-		console.error(error);
+		Sentry.captureException(error);
 	}, [error]);
 
 	const title = listOfTitles[Math.floor(Math.random() * listOfTitles.length)];

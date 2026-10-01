@@ -100,3 +100,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DATABASE_URL: "mysql://fake:fake@fake:3306/fake"
+          SENTRY_AUTH_TOKEN: "fake"
