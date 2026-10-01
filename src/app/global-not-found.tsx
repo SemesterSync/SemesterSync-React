@@ -1,3 +1,4 @@
+import { env } from "@/config/env";
 import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -12,9 +13,14 @@ export const metadata: Metadata = {
 export default function GlobalNotFound() {
 	return (
 		<html lang="en" className={inter.className}>
-			<body className="bg-background text-foreground text-center w-full mt-[40%]">
-				<h1 className="font-black ">404 - Page Not Found</h1>
+			<body className="bg-background text-foreground text-center w-full mt-[20%]">
+				<h1 className="font-black text-2xl text-primary">
+					404 - Page Not Found
+				</h1>
 				<p>This page does not exist.</p>
+				<p className="text-muted-foreground text-xs">
+					Build: {env.BUILD_VERSION} ({env.BUILD_COMMIT})
+				</p>
 				<a href="/" className="hover:underline text-primary">
 					Return Home
 				</a>
