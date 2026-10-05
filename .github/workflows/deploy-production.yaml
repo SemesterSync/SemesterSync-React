@@ -56,42 +56,42 @@ jobs:
           echo "Production source is now:"
           git log -1 --oneline
 
-        - name: Generate build version
-          shell: bash
-          run: |
-            set -euo pipefail
+      - name: Generate build version
+        shell: bash
+        run: |
+          set -euo pipefail
 
-            cd /var/www/semestersync
+          cd /var/www/semestersync
 
-            DATE="$(date -u +"%Y.%m.%d")"
-            SHORT_SHA="$(git rev-parse --short=7 HEAD)"
+          DATE="$(date -u +"%Y.%m.%d")"
+          SHORT_SHA="$(git rev-parse --short=7 HEAD)"
 
-            BUILD_VERSION="${DATE}.${GITHUB_RUN_NUMBER}"
-            SENTRY_RELEASE="semestersync@${BUILD_VERSION}-${SHORT_SHA}"
+          BUILD_VERSION="${DATE}.${GITHUB_RUN_NUMBER}"
+          SENTRY_RELEASE="semestersync@${BUILD_VERSION}-${SHORT_SHA}"
 
-            echo "Generated build information:"
-            echo "  Build:   $BUILD_VERSION"
-            echo "  Commit:  $SHORT_SHA"
-            echo "  Release: $SENTRY_RELEASE"
+          echo "Generated build information:"
+          echo "  Build:   $BUILD_VERSION"
+          echo "  Commit:  $SHORT_SHA"
+          echo "  Release: $SENTRY_RELEASE"
 
-            {
-              echo "BUILD_VERSION=$BUILD_VERSION"
-              echo "NEXT_PUBLIC_BUILD_VERSION=$BUILD_VERSION"
-              echo "BUILD_COMMIT=$GITHUB_SHA"
-              echo "NEXT_PUBLIC_BUILD_COMMIT=$SHORT_SHA"
-              echo "SENTRY_RELEASE=$SENTRY_RELEASE"
-            } >> "$GITHUB_ENV"
+          {
+            echo "BUILD_VERSION=$BUILD_VERSION"
+            echo "NEXT_PUBLIC_BUILD_VERSION=$BUILD_VERSION"
+            echo "BUILD_COMMIT=$GITHUB_SHA"
+            echo "NEXT_PUBLIC_BUILD_COMMIT=$SHORT_SHA"
+            echo "SENTRY_RELEASE=$SENTRY_RELEASE"
+          } >> "$GITHUB_ENV"
 
-            set_env() {
-              KEY="$1"
-              VALUE="$2"
+          set_env() {
+            KEY="$1"
+            VALUE="$2"
 
-              if grep -q "^${KEY}=" .env; then
-                sed -i "s|^${KEY}=.*|${KEY}=${VALUE}|" .env
-              else
-                printf '%s=%s\n' "$KEY" "$VALUE" >> .env
-              fi
-            }
+            if grep -q "^${KEY}=" .env; then
+              sed -i "s|^${KEY}=.*|${KEY}=${VALUE}|" .env
+            else
+              printf '%s=%s\n' "$KEY" "$VALUE" >> .env
+            fi
+          }
 
             set_env "BUILD_VERSION" "$BUILD_VERSION"
             set_env "NEXT_PUBLIC_BUILD_VERSION" "$BUILD_VERSION"
