@@ -19,7 +19,7 @@ export default function GlobalNotFound() {
 				</h1>
 				<p>This page does not exist.</p>
 				<p className="text-muted-foreground text-xs">
-					Build: {env.BUILD_VERSION} ({env.BUILD_COMMIT})
+					Build: {env.NEXT_PUBLIC_BUILD_VERSION} ({env.NEXT_PUBLIC_BUILD_COMMIT})
 				</p>
 				<a href="/" className="hover:underline text-primary">
 					Return Home
