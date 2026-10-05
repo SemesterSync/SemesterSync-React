@@ -125,11 +125,6 @@ jobs:
             echo "ERROR: SENTRY_AUTH_TOKEN is not available"
             exit 1
           fi
-
-          if [ -z "${SENTRY_URL:-}" ]; then
-            echo "ERROR: SENTRY_URL is not available"
-            exit 1
-          fi
           
           pnpm build
 
