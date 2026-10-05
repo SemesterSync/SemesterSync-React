@@ -113,6 +113,24 @@ jobs:
           set -euo pipefail
 
           cd /var/www/semestersync
+
+          set -a
+          source .env
+          set +a
+
+          echo "Build version: $BUILD_VERSION"
+          echo "Sentry release: $SENTRY_RELEASE"
+
+          if [ -z "${SENTRY_AUTH_TOKEN:-}" ]; then
+            echo "ERROR: SENTRY_AUTH_TOKEN is not available"
+            exit 1
+          fi
+
+          if [ -z "${SENTRY_URL:-}" ]; then
+            echo "ERROR: SENTRY_URL is not available"
+            exit 1
+          fi
+          
           pnpm build
 
       - name: Restart production
