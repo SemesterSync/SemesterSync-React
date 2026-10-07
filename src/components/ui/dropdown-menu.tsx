@@ -1,7 +1,7 @@
 "use client";
 
 import { Menu as MenuPrimitive } from "@base-ui/react/menu";
-import { CheckIcon, ChevronRightIcon } from "lucide-react";
+import { CheckIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import type * as React from "react";
 import { cn } from "@/lib/utils";
 
@@ -105,10 +105,12 @@ function DropdownMenuSub({ ...props }: MenuPrimitive.SubmenuRoot.Props) {
 function DropdownMenuSubTrigger({
 	className,
 	inset,
+	iconLeft,
 	children,
 	...props
 }: MenuPrimitive.SubmenuTrigger.Props & {
 	inset?: boolean;
+	iconLeft?: boolean;
 }) {
 	return (
 		<MenuPrimitive.SubmenuTrigger
@@ -120,8 +122,9 @@ function DropdownMenuSubTrigger({
 			)}
 			{...props}
 		>
+			{iconLeft && <ChevronLeftIcon />}
 			{children}
-			<ChevronRightIcon className="ml-auto" />
+			{!iconLeft && <ChevronRightIcon className="ml-auto" />}
 		</MenuPrimitive.SubmenuTrigger>
 	);
 }
