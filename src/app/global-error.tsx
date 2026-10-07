@@ -1,5 +1,6 @@
 "use client";
 
+import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Button } from "@/components/ui/button";
 import { env } from "@/config/env";
 import "@/styles/globals.css";
@@ -53,38 +54,40 @@ export default function GlobalErrorPage({
 	return (
 		<html lang="en" className={inter.className}>
 			<body className="bg-background text-foreground text-center w-full mt-[20%]">
-				<div className="space-y-2">
-					<h1 className="font-black text-primary text-2xl">{title}</h1>
-					<p>
-						Looks like something went wrong and SemesterSync crashed
-						unexpectedly.
-					</p>
-					<p>
-						Don't worry though, we've tracked this error and will get right on
-						it.
-					</p>
-					<div className="flex flex-row items-center gap-2 w-full justify-center">
-						<p className="text-muted-foreground text-xs">
-							Build: {env.NEXT_PUBLIC_BUILD_VERSION} (
-							{env.NEXT_PUBLIC_BUILD_COMMIT})
+				<ThemeProvider>
+					<div className="space-y-2">
+						<h1 className="font-black text-primary text-2xl">{title}</h1>
+						<p>
+							Looks like something went wrong and SemesterSync crashed
+							unexpectedly.
 						</p>
-						<Button
-							onClick={() => {
-								navigator.clipboard.writeText(
-									`Build: ${env.NEXT_PUBLIC_BUILD_VERSION}; Commit: ${env.NEXT_PUBLIC_BUILD_COMMIT}`,
-								);
-								setCopied(true);
-								setTimeout(() => setCopied(false), 2000);
-							}}
-							size={"icon-xs"}
-							variant={copied ? "success" : "secondary"}
-						>
-							{copied ? <Check /> : <Copy />}
-						</Button>
-					</div>
+						<p>
+							Don't worry though, we've tracked this error and will get right on
+							it.
+						</p>
+						<div className="flex flex-row items-center gap-2 w-full justify-center">
+							<p className="text-muted-foreground text-xs">
+								Build: {env.NEXT_PUBLIC_BUILD_VERSION} (
+								{env.NEXT_PUBLIC_BUILD_COMMIT})
+							</p>
+							<Button
+								onClick={() => {
+									navigator.clipboard.writeText(
+										`Build: ${env.NEXT_PUBLIC_BUILD_VERSION}; Commit: ${env.NEXT_PUBLIC_BUILD_COMMIT}`,
+									);
+									setCopied(true);
+									setTimeout(() => setCopied(false), 2000);
+								}}
+								size={"icon-xs"}
+								variant={copied ? "success" : "secondary"}
+							>
+								{copied ? <Check /> : <Copy />}
+							</Button>
+						</div>
 
-					<Button onClick={() => window.location.reload()}>Reload</Button>
-				</div>
+						<Button onClick={() => window.location.reload()}>Reload</Button>
+					</div>
+				</ThemeProvider>
 			</body>
 		</html>
 	);

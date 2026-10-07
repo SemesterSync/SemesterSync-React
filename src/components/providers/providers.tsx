@@ -26,12 +26,7 @@ export default async function Providers({
 	]);
 
 	return (
-		<ThemeProvider
-			attribute="class"
-			defaultTheme="system"
-			enableSystem
-			disableTransitionOnChange
-		>
+		<ThemeProvider>
 			{environment === "development" && <TanstackProvider />}
 			<DataProvider
 				terms={terms}
