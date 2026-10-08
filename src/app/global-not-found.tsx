@@ -1,3 +1,4 @@
+import { ThemeProvider } from "@/components/providers/theme-provider";
 import { env } from "@/config/env";
 import "@/styles/globals.css";
 import type { Metadata } from "next";
