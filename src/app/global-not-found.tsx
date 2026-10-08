@@ -15,18 +15,17 @@ export default function GlobalNotFound() {
 	return (
 		<html lang="en" className={inter.className}>
 			<body className="bg-background text-foreground text-center w-full mt-[20%]">
-				<ThemeProvider>
-					<h1 className="font-black text-2xl text-primary">
-						404 - Page Not Found
-					</h1>
-					<p>This page does not exist.</p>
-					<p className="text-muted-foreground text-xs">
-						Build: {env.BUILD_VERSION} ({env.BUILD_COMMIT})
-					</p>
-					<a href="/" className="hover:underline text-primary">
-						Return Home
-					</a>
-				</ThemeProvider>
+				<h1 className="font-black text-2xl text-primary">
+					404 - Page Not Found
+				</h1>
+				<p>This page does not exist.</p>
+				<p className="text-muted-foreground text-xs">
+					Build: {env.NEXT_PUBLIC_BUILD_VERSION} ({env.NEXT_PUBLIC_BUILD_COMMIT}
+					)
+				</p>
+				<a href="/" className="hover:underline text-primary">
+					Return Home
+				</a>
 			</body>
 		</html>
 	);
