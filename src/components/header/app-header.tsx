@@ -1,9 +1,9 @@
 "use client";
 
-import SettingsModal from "../modals/settings/settings";
 import MiniCalendar from "../sidebar/miniCalendar/mini-calendar";
 import { Button } from "../ui/button";
 import { SidebarTrigger, useSidebar } from "../ui/sidebar";
+import MoreDropdown from "./more-dropdown";
 import ShareDropdown from "./share-dropdown";
 
 export default function AppHeader() {
@@ -23,7 +23,7 @@ export default function AppHeader() {
 				</Button>
 				<ShareDropdown />
 
-				<SettingsModal />
+				<MoreDropdown />
 			</div>
 		</nav>
 	);

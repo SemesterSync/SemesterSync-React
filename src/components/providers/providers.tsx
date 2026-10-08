@@ -6,6 +6,7 @@ import { getAllCourses, getAllMeetings, getAllSections } from "@/data/courses";
 import { getAllTerms } from "@/data/terms";
 import DataProvider from "./data";
 import TanstackProvider from "./tanstack";
+import { ThemeProvider } from "./theme-provider";
 
 //TODO - Remove this & replace with front end API fetching
 export const dynamic = "force-dynamic";
@@ -25,7 +26,7 @@ export default async function Providers({
 	]);
 
 	return (
-		<>
+		<ThemeProvider>
 			{environment === "development" && <TanstackProvider />}
 			<DataProvider
 				terms={terms}
@@ -39,6 +40,6 @@ export default async function Providers({
 					<Toaster />
 				</SidebarProvider>
 			</TooltipProvider>
-		</>
+		</ThemeProvider>
 	);
 }
