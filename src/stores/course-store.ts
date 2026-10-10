@@ -36,11 +36,7 @@ const useCourseStore = create<CourseStore>((set, get) => ({
 	getCoursesByTermCode: (termCode: string) => {
 		const term = get().terms.find((term) => term.code === termCode);
 		if (!term) return [];
-		return get().courses.filter(
-			(course) =>
-				get().sections.find((section) => section.courseId === course.id)
-					?.termId === term.id,
-		);
+		return get().getCoursesByTerm(term.id);
 	},
 	getCourse: (courseId: string) =>
 		get().courses.find((course) => course.id === courseId),
