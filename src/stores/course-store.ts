@@ -28,10 +28,12 @@ const useCourseStore = create<CourseStore>((set, get) => ({
 	setCourses: (courses: Array<CourseResponse>) => set({ courses }),
 	getCourses: () => get().courses,
 	getCoursesByTerm: (termId: string) =>
-		get().courses.filter(
-			(course) =>
-				get().sections.find((section) => section.courseId === course.id)
-					?.termId === termId,
+		get().courses.filter((course) =>
+			new Set(
+				get()
+					.sections.filter((section) => section.courseId === course.id)
+					.flatMap((section) => section.termId),
+			).has(termId),
 		),
 	getCoursesByTermCode: (termCode: string) => {
 		const term = get().terms.find((term) => term.code === termCode);
