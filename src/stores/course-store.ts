@@ -23,6 +23,8 @@ const useCourseStore = create<CourseStore>((set, get) => ({
 	getTerm: (termId: string) => get().terms.find((term) => term.id === termId),
 	getTermByCode: (termCode: string) =>
 		get().terms.find((term) => term.code === termCode),
+	getTermIdByCode: (termCode: string) =>
+		get().terms.find((term) => term.code === termCode)?.id,
 
 	// --- Courses ---
 	setCourses: (courses: Array<CourseResponse>) => set({ courses }),
@@ -36,9 +38,9 @@ const useCourseStore = create<CourseStore>((set, get) => ({
 			).has(termId),
 		),
 	getCoursesByTermCode: (termCode: string) => {
-		const term = get().terms.find((term) => term.code === termCode);
-		if (!term) return [];
-		return get().getCoursesByTerm(term.id);
+		const termId = get().getTermIdByCode(termCode);
+		if (!termId) return [];
+		return get().getCoursesByTerm(termId);
 	},
 	getCourse: (courseId: string) =>
 		get().courses.find((course) => course.id === courseId),
@@ -47,8 +49,14 @@ const useCourseStore = create<CourseStore>((set, get) => ({
 	setSections: (sections: Array<SectionResponse>) => set({ sections }),
 	getSection: (sectionId: string) =>
 		get().sections.find((section) => section.id === sectionId),
-	getSectionsByCourseId: (courseId: string) =>
-		get().sections.filter((section) => section.courseId === courseId),
+	getSectionsByCourseId: (courseId: string, termCode: string) => {
+		const termId = get().getTermIdByCode(termCode);
+		if (!termId) return [];
+
+		return get().sections.filter(
+			(section) => section.courseId === courseId && section.termId === termId,
+		);
+	},
 
 	// --- Meetings ---
 	setMeetings: (meetings: Array<MeetingResponse>) => set({ meetings }),
