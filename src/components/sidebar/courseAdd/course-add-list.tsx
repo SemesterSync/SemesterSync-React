@@ -107,8 +107,8 @@ export default function CourseAddList({
 	}, [searchQuery, selectedCourse, selectedAtTop, courses]);
 
 	useEffect(
-		() => setSections(getSections(showCourseSectionId)),
-		[getSections, showCourseSectionId],
+		() => setSections(getSections(showCourseSectionId, selectedTerm)),
+		[getSections, showCourseSectionId, selectedTerm],
 	);
 
 	useEffect(() => {
@@ -227,7 +227,10 @@ export default function CourseAddList({
 						>
 							{virtualItems.map((vItem) => {
 								const course = filteredCourses[vItem.index];
-								const sectionCount = getSections(course.id).length;
+								const sectionCount = getSections(
+									course.id,
+									selectedTerm,
+								).length;
 
 								return (
 									<div

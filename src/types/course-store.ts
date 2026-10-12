@@ -17,6 +17,7 @@ export interface CourseStoreActions {
 	getTerms: () => Array<TermResponse>;
 	getTerm: (termId: string) => TermResponse | undefined;
 	getTermByCode: (termCode: string) => TermResponse | undefined;
+	getTermIdByCode: (termCode: string) => string | undefined;
 
 	setCourses: (courses: Array<CourseResponse>) => void;
 	getCourses: () => Array<CourseResponse>;
@@ -25,8 +26,11 @@ export interface CourseStoreActions {
 	getCourse(courseId: string): CourseResponse | undefined;
 
 	setSections: (sections: Array<SectionResponse>) => void;
-	getSectionsByCourseId: (courseId: string) => Array<SectionResponse>;
 	getSection(sectionId: string): SectionResponse | undefined;
+	getSectionsByCourseId: (
+		courseId: string,
+		termCode: string,
+	) => Array<SectionResponse>;
 
 	setMeetings: (meeting: Array<MeetingResponse>) => void;
 	getMeetings: (sectionId: string) => Array<MeetingResponse>;
