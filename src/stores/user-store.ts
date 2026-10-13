@@ -29,20 +29,25 @@ const useUserStore = create<UserStore>()(
 			...initialState,
 
 			// tab management funcs
-			addTab: () =>
+			addTab: (name?: string, events = []) => {
+				const tabId = uuid();
+				const tabs = get().tabs;
+
 				set({
-					// set merges data into the store
 					tabs: [
-						...get().tabs, // get gets the latest state from the store
+						...tabs,
 						{
-							id: uuid(),
-							name: `Schedule ${get().tabs.length + 1}`,
-							events: [],
+							id: tabId,
+							name: name ?? `Schedule ${tabs.length + 1}`,
+							events,
 							totalCredits: 0,
 							selectedDate: new Date(),
 						},
 					],
-				}),
+				});
+
+				return tabId;
+			},
 			setActiveTab: (id: string) => set({ activeTab: id }),
 			getActiveTab: () =>
 				// filter tabs by id and return the found tab

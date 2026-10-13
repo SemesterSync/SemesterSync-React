@@ -33,7 +33,7 @@ export type UserState = z.infer<typeof userStateSchema>;
 export type UserStorePersist = z.infer<typeof userStorePersistSchema>;
 
 export interface UserActions {
-	addTab: () => void;
+	addTab: (id?: string, name?: string, events?: Array<Event>) => string;
 	setActiveTab: (id: string) => void;
 	getActiveTab: () => Tab;
 	getActiveTabCredits: () => number;
