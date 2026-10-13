@@ -1,15 +1,17 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { env } from "@/config/env";
 import { getAllCourses, getAllMeetings, getAllSections } from "@/data/courses";
 import { getAllTerms } from "@/data/terms";
 import DataProvider from "./data";
 import TanstackProvider from "./tanstack";
+import { ThemeProvider } from "./theme-provider";
 
 //TODO - Remove this & replace with front end API fetching
 export const dynamic = "force-dynamic";
 
-const env = process.env.NODE_ENV;
+const environment = env.NODE_ENV;
 
 export default async function Providers({
 	children,
@@ -24,8 +26,8 @@ export default async function Providers({
 	]);
 
 	return (
-		<>
-			{env === "development" && <TanstackProvider />}
+		<ThemeProvider>
+			{environment === "development" && <TanstackProvider />}
 			<DataProvider
 				terms={terms}
 				courses={courses}
@@ -38,6 +40,6 @@ export default async function Providers({
 					<Toaster />
 				</SidebarProvider>
 			</TooltipProvider>
-		</>
+		</ThemeProvider>
 	);
 }

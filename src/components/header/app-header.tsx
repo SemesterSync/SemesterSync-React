@@ -3,6 +3,7 @@
 import MiniCalendar from "../sidebar/miniCalendar/mini-calendar";
 import { Button } from "../ui/button";
 import { SidebarTrigger, useSidebar } from "../ui/sidebar";
+import MoreDropdown from "./more-dropdown";
 import ShareDropdown from "./share-dropdown";
 
 export default function AppHeader() {
@@ -21,6 +22,8 @@ export default function AppHeader() {
 					Teacher <span className="hidden sm:inline">Schedules </span>
 				</Button>
 				<ShareDropdown />
+
+				<MoreDropdown />
 			</div>
 		</nav>
 	);

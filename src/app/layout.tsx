@@ -3,7 +3,7 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "@/styles/globals.css";
 import DisclaimerModal from "@/components/modals/disclaimer";
 import AppSidebar from "@/components/sidebar/app-sidebar";
-import Providers from "./providers/providers";
+import Providers from "../components/providers/providers";
 
 //TODO - Remove this & replace with front end API fetching
 export const dynamic = "force-dynamic";
