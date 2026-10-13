@@ -29,8 +29,8 @@ const useUserStore = create<UserStore>()(
 			...initialState,
 
 			// tab management funcs
-			addTab: (name?: string, events = []) => {
-				const tabId = uuid();
+			addTab: (id?: string, name?: string, events = []) => {
+				const tabId = id ?? uuid();
 				const tabs = get().tabs;
 
 				set({

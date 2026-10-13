@@ -23,6 +23,7 @@ export default function SharedScheduleClient({
 }) {
 	const addTab = useUserStore((state) => state.addTab);
 	const setActiveTab = useUserStore((state) => state.setActiveTab);
+	const setActiveTerm = useUserStore((state) => state.setActiveTerm);
 	
 	const getCourse = useCourseStore((state) => state.getCourse);
 	const getSection = useCourseStore((state) => state.getSection);
@@ -56,6 +57,7 @@ export default function SharedScheduleClient({
 
 				isRendered.current = true;
 				setActiveTab(newTabId);
+				setActiveTerm(activeTerm);
 			}
 		}
 	}, [
@@ -64,6 +66,8 @@ export default function SharedScheduleClient({
 		addTab,
 		setActiveTab,
 		existingTab,
+		activeTerm,
+		setActiveTerm,
 	]);
 
 	return (
