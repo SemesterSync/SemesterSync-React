@@ -44,6 +44,7 @@ export default async function SharedSchedulePage({
 		<SharedScheduleClient
 			scheduleShareId={scheduleShareResponse.scheduleId}
 			events={scheduleResponse.events}
+			totalCredits={scheduleResponse.totalCredits}
 		/>
 	);
 }

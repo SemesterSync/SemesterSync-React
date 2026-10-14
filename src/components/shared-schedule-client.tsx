@@ -17,13 +17,16 @@ import { Event } from "@/schemas/events";
 export default function SharedScheduleClient({
 	scheduleShareId,
 	events,
+	totalCredits,
 }: {
 	scheduleShareId: string;
 	events: Event[];
+	totalCredits: number;
 }) {
 	const addTab = useUserStore((state) => state.addTab);
 	const setActiveTab = useUserStore((state) => state.setActiveTab);
 	const setActiveTerm = useUserStore((state) => state.setActiveTerm);
+	const getActiveTab = useUserStore((state) => state.getActiveTab);
 	
 	const getCourse = useCourseStore((state) => state.getCourse);
 	const getSection = useCourseStore((state) => state.getSection);
@@ -55,6 +58,8 @@ export default function SharedScheduleClient({
 					events,
 				);
 
+				getActiveTab().totalCredits = totalCredits;
+
 				isRendered.current = true;
 				setActiveTab(newTabId);
 				setActiveTerm(activeTerm);
@@ -68,6 +73,8 @@ export default function SharedScheduleClient({
 		existingTab,
 		activeTerm,
 		setActiveTerm,
+		getActiveTab,
+		totalCredits,
 	]);
 
 	return (
