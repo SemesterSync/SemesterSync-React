@@ -8,6 +8,8 @@ export const scheduleTable = mysqlTable("schedules", {
 
     events: json().$type<Event[]>().notNull(),
 
+    term: varchar({ length: 45}).notNull(),
+
     totalCredits: int().notNull().default(0),
 
     selectedDate: datetime(),

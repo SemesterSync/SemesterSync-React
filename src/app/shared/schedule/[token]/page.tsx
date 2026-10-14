@@ -45,6 +45,8 @@ export default async function SharedSchedulePage({
 			scheduleShareId={scheduleShareResponse.scheduleId}
 			events={scheduleResponse.events}
 			totalCredits={scheduleResponse.totalCredits}
+			term={scheduleResponse.term}
+			name={scheduleResponse.name}
 		/>
 	);
 }

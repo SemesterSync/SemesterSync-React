@@ -1,7 +1,7 @@
+
 "use client";
 
-import { useEffect, useRef } from "react";
-import { CalendarCards } from "@/types/events";
+import { useEffect, useMemo } from "react";
 
 import AppHeader from "@/components/header/app-header";
 import TabList from "@/components/tab-list";
@@ -11,83 +11,91 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import useUserStore from "@/stores/user-store";
 import useCourseStore from "@/stores/course-store";
 import { structureCalendarEventData } from "@/lib/calendar-utils";
-import { Event } from "@/schemas/events";
+import type { Event } from "@/schemas/events";
 
+type SharedScheduleClientProps = {
+    scheduleShareId: string;
+    events: Event[];
+    totalCredits: number;
+	term: string;
+	name: string
+};
 
 export default function SharedScheduleClient({
-	scheduleShareId,
-	events,
-	totalCredits,
-}: {
-	scheduleShareId: string;
-	events: Event[];
-	totalCredits: number;
-}) {
-	const addTab = useUserStore((state) => state.addTab);
-	const setActiveTab = useUserStore((state) => state.setActiveTab);
-	const setActiveTerm = useUserStore((state) => state.setActiveTerm);
-	const getActiveTab = useUserStore((state) => state.getActiveTab);
-	
-	const getCourse = useCourseStore((state) => state.getCourse);
-	const getSection = useCourseStore((state) => state.getSection);
-	const getMeetings = useCourseStore((state) => state.getMeetings);	
-	const activeTerm = useUserStore((state) => state.activeTerm);
-  
-	const existingTab = useUserStore.getState().tabs.find((tab) => tab.id === scheduleShareId);
-	const isRendered = useRef(false);
+    scheduleShareId,
+    events,
+    totalCredits,
+	term,
+	name
+}: SharedScheduleClientProps) {
 
+    const addTab = useUserStore((state) => state.addTab);
+    const setActiveTab = useUserStore((state) => state.setActiveTab);
+    const setTabTotalCredits = useUserStore((state) => state.setTabTotalCredits);
+	const setActiveTerm = useUserStore((state) => state.setActiveTerm)
 
-	const structuredEvents = structureCalendarEventData(
-			events,
-			activeTerm,
-			getCourse,
-			getSection,
-			getMeetings,
-		);
+    const getCourse = useCourseStore((state) => state.getCourse);
+    const getSection = useCourseStore((state) => state.getSection);
+    const getMeetings = useCourseStore((state) => state.getMeetings);
 
+    const structuredEvents = useMemo(
+        () =>
+            structureCalendarEventData(
+                events,
+                term,
+                getCourse,
+                getSection,
+                getMeetings,
+            ),
+        [
+            events,
+            term,
+            getCourse,
+            getSection,
+            getMeetings,
+        ],
+    );
 
-	useEffect(() => {
-		console.log("tabs", existingTab);
-		if (!isRendered.current) {
-			if (existingTab) {
-				setActiveTab(existingTab.id);
-			} else {	
-				const newTabId = addTab(
-					scheduleShareId,
-					`Shared Schedule: ${scheduleShareId}`,
-					events,
-				);
+    useEffect(() => {
+        // Read the latest store state before creating the tab.
+        const currentTab = useUserStore
+            .getState()
+            .tabs.find((tab) => tab.id === scheduleShareId);
 
-				getActiveTab().totalCredits = totalCredits;
+        if (!currentTab) {
+            addTab(
+                scheduleShareId,
+                `Shared Schedule: ${name}`,
+                events,
+            );
+        }
 
-				isRendered.current = true;
-				setActiveTab(newTabId);
-				setActiveTerm(activeTerm);
-			}
-		}
-	}, [
-		scheduleShareId,
-		events,
-		addTab,
-		setActiveTab,
-		existingTab,
-		activeTerm,
-		setActiveTerm,
-		getActiveTab,
-		totalCredits,
-	]);
+        setTabTotalCredits(scheduleShareId, totalCredits);
+        setActiveTab(scheduleShareId);
+		setActiveTerm(term);
+    }, [
+        scheduleShareId,
+        events,
+        totalCredits,
+		term,
+		name,
+        addTab,
+        setActiveTab,
+        setTabTotalCredits,
+		setActiveTerm
+    ]);
 
-	return (
-		<div className="flex h-screen min-w-0 w-full flex-col overflow-hidden">
-			<AppHeader />
+    return (
+        <div className="flex h-screen min-w-0 w-full flex-col overflow-hidden">
+            <AppHeader />
 
-			<main className="flex-1 min-w-0 overflow-hidden">
-				<TabList />
+            <main className="min-w-0 flex-1 overflow-hidden">
+                <TabList />
 
-				<ScrollArea className="h-[89vh] rounded-t-lg">
-					<Calendar events={structuredEvents} />
-				</ScrollArea>
-			</main>
-		</div>
-	);
+                <ScrollArea className="h-[89vh] rounded-t-lg">
+                    <Calendar events={structuredEvents} />
+                </ScrollArea>
+            </main>
+        </div>
+    );
 }

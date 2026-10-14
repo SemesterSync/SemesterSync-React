@@ -54,6 +54,14 @@ const useUserStore = create<UserStore>()(
 				get().tabs.filter((tab) => tab.id === get().activeTab)[0],
 			getActiveTabCredits: () =>
 				get().tabs.find((tab) => tab.id === get().activeTab)?.totalCredits || 0,
+			setTabTotalCredits: (tabId: string, totalCredits: number) =>
+				set((state) => ({
+					tabs: state.tabs.map((tab) =>
+						tab.id === tabId
+							? { ...tab, totalCredits }
+							: tab,
+					),
+				})),
 			updateTabName: (id: string, name: string) =>
 				set({
 					// Map through all tabs and update tab with matching id, otherwise keep tab as is
@@ -108,7 +116,7 @@ const useUserStore = create<UserStore>()(
 				}
 			},
 
-			setActiveTerm: (term: string) => set({ activeTerm: term }),
+			setActiveTerm: (term) => set({ activeTerm: term }),
 
 			getEvents: (tabId: string) =>
 				get().tabs.find((tab) => tab.id === tabId)?.events || EMPTY_EVENT_ARR,

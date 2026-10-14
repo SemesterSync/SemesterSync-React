@@ -18,6 +18,7 @@ export async function POST(
 
         const {
             schedule,
+            term,
             expiration,
             permission,
         } = body;
@@ -65,6 +66,7 @@ export async function POST(
                 id: schedule.id,
                 name: schedule.name,
                 events: schedule.events,
+                term,
                 totalCredits: schedule.totalCredits,
                 selectedDate: new Date(schedule.selectedDate),
         })
@@ -72,6 +74,7 @@ export async function POST(
                 set: {
                     name: schedule.name,
                     events: schedule.events,
+                    term,
                     totalCredits: schedule.totalCredits,
                     selectedDate: new Date(schedule.selectedDate),
                 },

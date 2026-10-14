@@ -1,9 +1,6 @@
 import { useState } from "react";
 import {
-	DropdownMenu,
-	DropdownMenuContent,
 	DropdownMenuItem,
-	DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 
 import {LinkIcon} from "lucide-react";
@@ -82,6 +79,9 @@ export function ShareItemModal({
     const [link, setLink] = useState<string | null>(null);
 
     const activeTab = useUserStore((state) => state.getActiveTab());
+    const activeTerm = useUserStore((state) => state.activeTerm)
+
+    console.log(activeTerm)
 
     const handleCreateLink = async () => {
         if (!activeTab) {
@@ -97,6 +97,7 @@ export function ShareItemModal({
                 },
                 body: JSON.stringify({
                     schedule: activeTab,
+                    term: activeTerm,
                     expiration,
                     permission,
                 }),
