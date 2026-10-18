@@ -52,6 +52,16 @@ export default function Calendar({
 }: CalendarProps) {
 	const activeTab = useUserStore((state) => state.getActiveTab());
 
+	const getEvents = useUserStore((state) => state.getEvents);
+
+	console.log({
+    setModalData,
+    setEditModalOpen,
+    setEditColorModalOpen,
+    setDeleteModalOpen,
+    deleteShiftAction,
+	});
+
 	const days = [
 		{ long: "Sunday", short: "Sun" },
 		{ long: "Monday", short: "Mon" },
@@ -179,6 +189,8 @@ export default function Calendar({
 			<div className="col-start-2 row-start-2 col-span-full row-span-full grid grid-cols-subgrid grid-rows-subgrid">
 				{events.map((event) => {
 					const d = new Date(firstDayOfWeek);
+
+					console.log("Events for active tab:", getEvents(activeTab.id));
 					d.setDate(firstDayOfWeek.getDate() + event.columnOffset);
 
 					if (d <= event.startDate || d >= event.endDate) return null;

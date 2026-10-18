@@ -32,6 +32,22 @@ const useUserStore = create<UserStore>()(
 			addTab: (id?: string, name?: string, events = []) => {
 				const tabId = id ?? uuid();
 				const tabs = get().tabs;
+				const tabExists = tabs.some((tab) => tab.id === tabId);
+
+				if (tabExists) {
+					set({
+						tabs: tabs.map((tab) =>
+							tab.id === tabId
+								? {
+										...tab,
+										name: name ?? tab.name,
+										events,
+									}
+								: tab,
+						),
+					});
+					return tabId;
+				}
 
 				set({
 					tabs: [

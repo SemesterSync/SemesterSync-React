@@ -38,17 +38,20 @@ export default function SharedScheduleClient({
     const getSection = useCourseStore((state) => state.getSection);
     const getMeetings = useCourseStore((state) => state.getMeetings);
 
+    const activeTabId = useUserStore((state) => state.activeTab);
+    const sharedEvents = useUserStore((state) => state.getEvents(activeTabId)); 
+
     const structuredEvents = useMemo(
         () =>
             structureCalendarEventData(
-                events,
+                sharedEvents,
                 term,
                 getCourse,
                 getSection,
                 getMeetings,
             ),
         [
-            events,
+            sharedEvents,
             term,
             getCourse,
             getSection,
@@ -57,18 +60,12 @@ export default function SharedScheduleClient({
     );
 
     useEffect(() => {
-        // Read the latest store state before creating the tab.
-        const currentTab = useUserStore
-            .getState()
-            .tabs.find((tab) => tab.id === scheduleShareId);
-
-        if (!currentTab) {
-            addTab(
-                scheduleShareId,
-                `Shared Schedule: ${name}`,
-                events,
-            );
-        }
+       
+        addTab(
+            scheduleShareId,
+            `Shared Schedule: ${name}`,
+            events,
+        );
 
         setTabTotalCredits(scheduleShareId, totalCredits);
         setActiveTab(scheduleShareId);
@@ -93,7 +90,13 @@ export default function SharedScheduleClient({
                 <TabList />
 
                 <ScrollArea className="h-[89vh] rounded-t-lg">
-                    <Calendar events={structuredEvents} />
+                    <Calendar events={structuredEvents} 
+					setModalData={undefined}
+					setEditModalOpen={undefined}
+					setEditColorModalOpen={undefined}
+					setDeleteModalOpen={undefined}
+					deleteShiftAction={undefined}					
+					/>
                 </ScrollArea>
             </main>
         </div>

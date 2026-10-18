@@ -31,7 +31,7 @@ import {
 } from "../ui/select";
 
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
-import { Input } from "@base-ui/react";
+import { Input } from "../ui/input";
 
 import useUserStore from "@/stores/user-store";
 
