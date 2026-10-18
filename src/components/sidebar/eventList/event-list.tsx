@@ -2,7 +2,7 @@
 
 import clsx from "clsx";
 import { Edit, Palette } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
 	type EventListCardData,
 	EventListCardUI,
@@ -136,6 +136,8 @@ function ClassCard({ data }: { data: EventListCardData }) {
 	const [hoverCardOpen, setHoverCardOpen] = useState(false);
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
+	const canEdit = activeTab.permission === "edit";
+
 	return (
 		<HoverCard open={hoverCardOpen} onOpenChange={setHoverCardOpen}>
 			<HoverCardTrigger delay={0} closeDelay={0}>
@@ -153,7 +155,7 @@ function ClassCard({ data }: { data: EventListCardData }) {
 							<AlertDialogTrigger
 								render={
 									<TooltipTrigger
-										render={<Button variant="secondary" size="icon" />}
+										render={<Button variant="secondary" size="icon" disabled={!canEdit} />}
 									>
 										<Edit />
 									</TooltipTrigger>
@@ -173,7 +175,7 @@ function ClassCard({ data }: { data: EventListCardData }) {
 							<AlertDialogTrigger
 								render={
 									<TooltipTrigger
-										render={<Button variant="secondary" size="icon" />}
+										render={<Button variant="secondary" size="icon" disabled={!canEdit} />}
 									>
 										<Palette />
 									</TooltipTrigger>
@@ -187,6 +189,7 @@ function ClassCard({ data }: { data: EventListCardData }) {
 				/>
 
 				<DangerModal
+					disabled={!canEdit}
 					type="delete"
 					isModalOpen={isDeleteModalOpen}
 					onOpenChange={setIsDeleteModalOpen}

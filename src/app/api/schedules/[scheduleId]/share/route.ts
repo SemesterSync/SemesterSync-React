@@ -12,7 +12,6 @@ export async function POST(
     try {
         const { scheduleId } = await params;
 
-        console.log("scheduleId:", scheduleId);
 
         const body = await request.json();
 
@@ -87,7 +86,7 @@ export async function POST(
         await db.insert(scheduleSharesTable).values({
                 scheduleId,
                 token,
-                permission: permission || "view",
+                permission: permission || "edit",
                 expiration: expirationDate,
                 createdAt: new Date(),
         });

@@ -54,13 +54,6 @@ export default function Calendar({
 
 	const getEvents = useUserStore((state) => state.getEvents);
 
-	console.log({
-    setModalData,
-    setEditModalOpen,
-    setEditColorModalOpen,
-    setDeleteModalOpen,
-    deleteShiftAction,
-	});
 
 	const days = [
 		{ long: "Sunday", short: "Sun" },
@@ -190,7 +183,6 @@ export default function Calendar({
 				{events.map((event) => {
 					const d = new Date(firstDayOfWeek);
 
-					console.log("Events for active tab:", getEvents(activeTab.id));
 					d.setDate(firstDayOfWeek.getDate() + event.columnOffset);
 
 					if (d <= event.startDate || d >= event.endDate) return null;

@@ -38,7 +38,6 @@ export default async function SharedSchedulePage({
 		);
 	}
 
-	console.log(scheduleShareResponse)
 
 	return (
 		<SharedScheduleClient
@@ -47,6 +46,7 @@ export default async function SharedSchedulePage({
 			totalCredits={scheduleResponse.totalCredits}
 			term={scheduleResponse.term}
 			name={scheduleResponse.name}
+			permission={scheduleShareResponse.permission as "view" | "edit"}
 		/>
 	);
 }

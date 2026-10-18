@@ -4,7 +4,8 @@ import EventList from "./eventList/event-list";
 import MiniCalendar from "./miniCalendar/mini-calendar";
 import TermDropdown from "./terms/term-dropdown";
 
-export default async function AppSidebar() {
+export default async function AppSidebar(){
+
 	return (
 		<Sidebar className="h-screen">
 			<SidebarHeader>

@@ -55,6 +55,7 @@ const defaults = {
 };
 
 type DangerModalProps = {
+	disabled?: boolean;
 	type: keyof typeof defaults;
 
 	isModalOpen?: boolean;
@@ -81,6 +82,7 @@ type DangerModalProps = {
 };
 
 export default function DangerModal({
+	disabled = false,
 	type,
 	isModalOpen,
 	onOpenChange,
@@ -116,6 +118,8 @@ export default function DangerModal({
 								<TooltipTrigger
 									render={
 										<Button
+
+											disabled={disabled}
 											variant={triggerVariant ? triggerVariant : "destructive"}
 											size={
 												triggerSize

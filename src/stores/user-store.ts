@@ -11,6 +11,7 @@ const defaultTab: Tab = {
 	events: [],
 	totalCredits: 0,
 	selectedDate: new Date(),
+	permission: "edit",
 };
 
 const initialState: UserState = {
@@ -28,8 +29,10 @@ const useUserStore = create<UserStore>()(
 			// spreads the default data & keys into the store
 			...initialState,
 
+	
+
 			// tab management funcs
-			addTab: (id?: string, name?: string, events = []) => {
+			addTab: (id?: string, name?: string, events = [], permission: "view" | "edit" = "edit") => {
 				const tabId = id ?? uuid();
 				const tabs = get().tabs;
 				const tabExists = tabs.some((tab) => tab.id === tabId);
@@ -41,6 +44,7 @@ const useUserStore = create<UserStore>()(
 								? {
 										...tab,
 										name: name ?? tab.name,
+										permission,
 										events,
 									}
 								: tab,
@@ -58,6 +62,7 @@ const useUserStore = create<UserStore>()(
 							events,
 							totalCredits: 0,
 							selectedDate: new Date(),
+							permission,
 						},
 					],
 				});
@@ -83,6 +88,13 @@ const useUserStore = create<UserStore>()(
 					// Map through all tabs and update tab with matching id, otherwise keep tab as is
 					tabs: get().tabs.map((tab) =>
 						tab.id === id ? { ...tab, name } : tab,
+					),
+				}),
+			updatePermission: (id: string, permission: "view" | "edit") =>
+				set({
+					// Map through all tabs and update tab with matching id, otherwise keep tab as is
+					tabs: get().tabs.map((tab) =>
+						tab.id === id ? { ...tab, permission } : tab,
 					),
 				}),
 			updateTabDate: (id: string, date: Date) =>

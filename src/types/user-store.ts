@@ -11,6 +11,7 @@ export const userTabSchema = z.object({
 	events: z.array(eventSchema),
 	totalCredits: z.number(),
 	selectedDate: z.coerce.date(),
+	permission: z.enum(["view", "edit"]).default("edit"),
 });
 
 export const userStateSchema = z.object({
@@ -33,12 +34,13 @@ export type UserState = z.infer<typeof userStateSchema>;
 export type UserStorePersist = z.infer<typeof userStorePersistSchema>;
 
 export interface UserActions {
-	addTab: (id?: string, name?: string, events?: Array<Event>) => string;
+	addTab: (id?: string, name?: string, events?: Array<Event>, permission?: "view" | "edit") => string;
 	setActiveTab: (id: string) => void;
 	getActiveTab: () => Tab;
 	getActiveTabCredits: () => number;
 	setTabTotalCredits: (tabId: string, totalCredits: number) => void;
 	updateTabName: (id: string, name: string) => void;
+	updatePermission: (id: string, permission: "view" | "edit") => void;
 	updateTabDate: (id: string, date: Date) => void;
 	recalculateTabCredits: (id: string) => void;
 	removeTab: (id: string) => void;

@@ -74,14 +74,14 @@ export function ShareItemModal({
         { label: "Never", value: "never"},
     ]
     
-    const [permission, setPermission] = useState<"view" | "edit">("view");
+    const [permission, setPermission] = useState<"view" | "edit">("edit");
 
     const [link, setLink] = useState<string | null>(null);
+    
 
     const activeTab = useUserStore((state) => state.getActiveTab());
     const activeTerm = useUserStore((state) => state.activeTerm)
 
-    console.log(activeTerm)
 
     const handleCreateLink = async () => {
         if (!activeTab) {
@@ -90,6 +90,7 @@ export function ShareItemModal({
         }
 
         try {
+            console.log
             const response = await fetch(`/api/schedules/${activeTab.id}/share`, {
                 method: "POST",
                 headers: {
@@ -109,8 +110,6 @@ export function ShareItemModal({
                 console.error("Failed to create share link:", data);
                 return;
             }
-
-            console.log("Generated share link:", data.url);
 
             setLink(data.url);
             setShareSuccess(true);
