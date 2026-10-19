@@ -7,6 +7,7 @@ import { env } from "@/config/env";
 
 Sentry.init({
 	dsn: "https://7eac5a45add1b48cc7364a53be7c4a53@sentry.semestersync.org/2",
+	enabled: process.env.NODE_ENV === "production",
 
 	// Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
 	tracesSampleRate: 1,
