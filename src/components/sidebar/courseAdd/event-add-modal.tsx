@@ -53,12 +53,14 @@ export default function EventAddModal() {
 	const shouldReduceMotion = useReducedMotion();
 	const swipeLeftVariant = crateSwipeLeftVariant(shouldReduceMotion);
 
+	const activeTab = useUserStore((state) => state.getActiveTab());
+
 	return (
 		<AlertDialog>
 			<AlertDialogTrigger
 				render={
 					<Button
-						disabled={activeTerm === ""}
+						disabled={activeTab?.permission !== "edit" || activeTerm === ""}
 						variant={activeTerm === "" ? "destructive" : "default"}
 					/>
 				}

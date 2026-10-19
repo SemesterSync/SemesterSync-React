@@ -52,8 +52,6 @@ export default function Calendar({
 }: CalendarProps) {
 	const activeTab = useUserStore((state) => state.getActiveTab());
 
-	const getEvents = useUserStore((state) => state.getEvents);
-
 
 	const days = [
 		{ long: "Sunday", short: "Sun" },
