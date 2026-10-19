@@ -50,15 +50,20 @@ export default function SharedScheduleClient({
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [modalEvent, setModalEvent] = useState<CalendarCard | undefined>();
 
+    const activeTabId = useUserStore((state) => state.activeTab);
+    const activeTab = useUserStore((state) => state.tabs.find((tab) => tab.id === activeTabId));
+    const activeTabEvents = activeTab ? activeTab.events : [];
+
     const removeEvent = useUserStore((state) => state.removeEvent);
 
 
     const sharedTab = useUserStore((state) => state.tabs.find((tab) => tab.id === scheduleShareId));
     const sharedEvents = sharedTab ? sharedTab.events : [];
 
-    const canEdit = sharedTab?.permission === "edit";
+    const canEdit = activeTab?.permission === "edit";
 
     const hasLoadedInitialData = useRef(false);
+    const hasInitializedSharedTab = useRef(false);
 
     useEffect(() => {
         if (!sharedTab || permission !== "edit") {
@@ -72,13 +77,20 @@ export default function SharedScheduleClient({
 
         const timeout = setTimeout(async () => {
             try {
+                let name = sharedTab.name
+                let l = sharedTab.name.indexOf("Shared Schedule: ");
+                if (l !== -1) {
+                    name = sharedTab.name.substring(l + "Shared Schedule: ".length);
+                } else {
+                    name = sharedTab.name;
+                }
                 const response =await fetch(`/api/schedules/${scheduleShareId}`, {
                     method: "PATCH",
                     headers: {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        name: sharedTab.name,
+                        name,
                         events: sharedEvents,
                         term,
                         totalCredits: sharedTab.totalCredits,
@@ -106,14 +118,14 @@ export default function SharedScheduleClient({
     const structuredEvents = useMemo(
         () =>
             structureCalendarEventData(
-                sharedEvents,
+                activeTabEvents,
                 term,
                 getCourse,
                 getSection,
                 getMeetings,
             ),
         [
-            sharedEvents,
+            activeTabEvents,
             term,
             getCourse,
             getSection,
@@ -122,7 +134,9 @@ export default function SharedScheduleClient({
     );
      
     useEffect(() => {
-
+        
+        if(hasInitializedSharedTab.current) return;
+        hasInitializedSharedTab.current = true;
        
         addTab(
             scheduleShareId,
@@ -162,7 +176,7 @@ export default function SharedScheduleClient({
 				setEditColorModalOpen={ canEdit ? setIsColorModalOpen : undefined}
 				setDeleteModalOpen={    canEdit ? setIsDeleteModalOpen : undefined}
 				deleteShiftAction={    canEdit ? (eventId: string) => {
-					removeEvent(scheduleShareId, eventId);
+					removeEvent(activeTabId, eventId);
 					toast.add({
 						title: "Event Deleted Successfully",
 						type: "success",
@@ -205,7 +219,7 @@ export default function SharedScheduleClient({
 					cancelOnClick={() => setModalEvent(undefined)}
 					actionChildren="Delete Event"
 					actionOnClick={() => {
-						removeEvent(scheduleShareId, modalEvent.id);
+						removeEvent(activeTabId, modalEvent.id);
 						setModalEvent(undefined);
 						toast.add({
 							title: "Event Deleted Successfully",

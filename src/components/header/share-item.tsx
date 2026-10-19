@@ -90,7 +90,6 @@ export function ShareItemModal({
         }
 
         try {
-            console.log
             const response = await fetch(`/api/schedules/${activeTab.id}/share`, {
                 method: "POST",
                 headers: {
