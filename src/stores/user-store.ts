@@ -52,7 +52,6 @@ const useUserStore = create<UserStore>()(
 										name: name ?? tab.name,
 										events,
 										permission: permission ?? tab.permission,
-										sharedScheduleId: tab.sharedScheduleId || "",
 									}
 								: tab,
 						),

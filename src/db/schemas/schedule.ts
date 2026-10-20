@@ -13,8 +13,6 @@ export const scheduleTable = mysqlTable("schedules", {
     totalCredits: int().notNull().default(0),
 
     selectedDate: datetime(),
-
-    sharedScheduleId : varchar({ length: 45 }).notNull().unique().default(""),
 });
 
 export type ScheduleTableResult = typeof scheduleTable.$inferSelect;

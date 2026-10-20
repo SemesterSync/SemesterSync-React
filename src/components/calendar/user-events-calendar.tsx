@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect} from "react";
+import { useState, useEffect, useRef} from "react";
 import { structureCalendarEventData } from "@/lib/calendar-utils";
 import useCourseStore from "@/stores/course-store";
 import useUserStore from "@/stores/user-store";
@@ -29,14 +29,21 @@ export default function UserEventsCalendar() {
 	const activeTab = useUserStore((state) => state.getActiveTab());
 	const canEdit = activeTab?.permission !== "view";
 
+	const hasLoadedSharedTab = useRef(false);
 
 	useEffect(() => {
-		if (!activeTab.sharedScheduleId) return;
+		if (!activeTab?.sharedScheduleId) return;
+		if (activeTab.permission !== "edit") return;
+
+		if (!hasLoadedSharedTab.current) {
+			hasLoadedSharedTab.current = true;
+			return;
+		}
 
 		const timeout = setTimeout(async () => {
 			try {
 				const response = await fetch(
-					`/api/schedules/${activeTab.id}`,
+					`/api/schedules/${activeTab.sharedScheduleId}`,
 					{
 						method: "PATCH",
 						headers: {
@@ -48,7 +55,6 @@ export default function UserEventsCalendar() {
 							term: activeTerm,
 							totalCredits: activeTab.totalCredits,
 							selectedDate: activeTab.selectedDate,
-							sharedScheduleId: activeTab.sharedScheduleId,
 						}),
 					},
 				);
