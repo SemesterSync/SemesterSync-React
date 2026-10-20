@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect} from "react";
 import { structureCalendarEventData } from "@/lib/calendar-utils";
 import useCourseStore from "@/stores/course-store";
 import useUserStore from "@/stores/user-store";
@@ -12,9 +12,9 @@ import { toast } from "../ui/toast";
 import Calendar from "./calendar";
 
 export default function UserEventsCalendar() {
-	const activeTab = useUserStore((state) => state.activeTab);
+	const activeTabId = useUserStore((state) => state.activeTab);
 	const activeTerm = useUserStore((state) => state.activeTerm);
-	const events = useUserStore((state) => state.getEvents(activeTab));
+	const events = useUserStore((state) => state.getEvents(activeTabId));
 	const removeEvent = useUserStore((state) => state.removeEvent);
 
 	const getCourse = useCourseStore((state) => state.getCourse);
@@ -25,6 +25,49 @@ export default function UserEventsCalendar() {
 	const [isColorModalOpen, setIsColorModalOpen] = useState(false);
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 	const [modalEvent, setModalEvent] = useState<CalendarCard | undefined>();
+
+	const activeTab = useUserStore((state) => state.getActiveTab());
+	const canEdit = activeTab?.permission !== "view";
+
+
+	useEffect(() => {
+		if (!activeTab.sharedScheduleId) return;
+
+		const timeout = setTimeout(async () => {
+			try {
+				const response = await fetch(
+					`/api/schedules/${activeTab.id}`,
+					{
+						method: "PATCH",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({
+							name: activeTab.name,
+							events: activeTab.events,
+							term: activeTerm,
+							totalCredits: activeTab.totalCredits,
+							selectedDate: activeTab.selectedDate,
+							sharedScheduleId: activeTab.sharedScheduleId,
+						}),
+					},
+				);
+
+				if (!response.ok) {
+					console.error(
+						"Failed to update shared schedule:",
+						await response.text(),
+					);
+				}
+			} catch (error) {
+				console.error("Failed to update shared schedule:", error);
+			}
+		}, 500);
+
+		return () => clearTimeout(timeout);
+	}, [activeTab, activeTerm]);
+
+	
 
 	const structuredEvents = structureCalendarEventData(
 		events,
@@ -38,20 +81,24 @@ export default function UserEventsCalendar() {
 		<>
 			<Calendar
 				events={structuredEvents}
-				setModalData={setModalEvent}
-				setEditModalOpen={setIsEditModalOpen}
-				setEditColorModalOpen={setIsColorModalOpen}
-				setDeleteModalOpen={setIsDeleteModalOpen}
-				deleteShiftAction={(eventId: string) => {
-					removeEvent(activeTab, eventId);
-					toast.add({
-						title: "Event Deleted Successfully",
-						type: "success",
-					});
-				}}
+				setModalData={canEdit ? setModalEvent : undefined}
+				setEditModalOpen={canEdit ? setIsEditModalOpen : undefined}
+				setEditColorModalOpen={canEdit ? setIsColorModalOpen : undefined}
+				setDeleteModalOpen={canEdit ? setIsDeleteModalOpen : undefined}
+				deleteShiftAction={
+					canEdit
+						? (eventId: string) => {
+								removeEvent(activeTabId, eventId);
+								toast.add({
+									title: "Event Deleted Successfully",
+									type: "success",
+								});
+							}
+						: undefined
+				}
 			/>
 
-			{modalEvent && (
+			{canEdit && modalEvent && (
 				<EditEventModal
 					eventId={modalEvent.id}
 					open={isEditModalOpen}
@@ -61,7 +108,7 @@ export default function UserEventsCalendar() {
 				/>
 			)}
 
-			{modalEvent && (
+			{canEdit &&modalEvent && (
 				<DangerModal
 					type="delete"
 					isModalOpen={isDeleteModalOpen}
@@ -86,7 +133,7 @@ export default function UserEventsCalendar() {
 					cancelOnClick={() => setModalEvent(undefined)}
 					actionChildren="Delete Event"
 					actionOnClick={() => {
-						removeEvent(activeTab, modalEvent.id);
+						removeEvent(activeTabId, modalEvent.id);
 						setModalEvent(undefined);
 						toast.add({
 							title: "Event Deleted Successfully",
@@ -96,7 +143,7 @@ export default function UserEventsCalendar() {
 				/>
 			)}
 
-			{modalEvent && (
+			{canEdit &&modalEvent && (
 				<EditColorModal
 					eventId={modalEvent.id}
 					open={isColorModalOpen}

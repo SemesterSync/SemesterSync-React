@@ -12,6 +12,7 @@ export const userTabSchema = z.object({
 	totalCredits: z.number(),
 	selectedDate: z.coerce.date(),
 	permission: z.enum(["view", "edit"]).default("edit"),
+	sharedScheduleId: z.string().optional(),
 });
 
 export const userStateSchema = z.object({
@@ -44,7 +45,7 @@ export interface UserActions {
 	updateTabDate: (id: string, date: Date) => void;
 	recalculateTabCredits: (id: string) => void;
 	removeTab: (id: string) => void;
-
+	
 	setActiveTerm: (term: string) => void;
 
 	getEvents: (tabId: string) => Array<Event>;
@@ -52,6 +53,8 @@ export interface UserActions {
 	addEvent: (tabId: string, event: Event) => void;
 	updateEvent: (tabId: string, event: Event) => void;
 	removeEvent: (tabId: string, eventId: string) => void;
+
+	setSharedScheduleId: (tabId: string, sharedScheduleId: string) => void;
 }
 
 export type UserStore = UserState & UserActions;

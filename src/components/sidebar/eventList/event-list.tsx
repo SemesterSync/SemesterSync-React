@@ -136,7 +136,7 @@ function ClassCard({ data }: { data: EventListCardData }) {
 	const [hoverCardOpen, setHoverCardOpen] = useState(false);
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-	const canEdit = activeTab.permission === "edit";
+	const canEdit = activeTab?.permission !== "view";
 
 	return (
 		<HoverCard open={hoverCardOpen} onOpenChange={setHoverCardOpen}>

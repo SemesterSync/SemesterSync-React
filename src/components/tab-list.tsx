@@ -38,6 +38,9 @@ export default function TabList() {
 	const setTabName = useUserStore((state) => state.updateTabName);
 	const removeTab = useUserStore((state) => state.removeTab);
 
+	const activeTab = useUserStore((state) => state.getActiveTab());
+	const canEdit = activeTab?.permission !== "view";
+
 	const [alertOpen, setAlertOpen] = useState<Record<string, boolean>>({});
 	const [renameEnabled, setRenameEnabled] = useState<Record<string, boolean>>(
 		{},
@@ -103,7 +106,7 @@ export default function TabList() {
 									<button
 										onClick={() => {
 											if (tab.id === activeTabId) {
-												setTabRenameState(tab.id, true);
+												if(canEdit) setTabRenameState(tab.id, true);
 											} else {
 												selectTab(tab.id);
 											}
@@ -268,7 +271,7 @@ export default function TabList() {
 				<ScrollBar orientation="horizontal" />
 			</ScrollArea>
 
-			<Button size={"icon"} onClick={addTab} className="shrink-0">
+			<Button size={"icon"} onClick={() => addTab()} className="shrink-0">
 				<Plus />
 			</Button>
 		</div>

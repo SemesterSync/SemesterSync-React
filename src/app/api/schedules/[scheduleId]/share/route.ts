@@ -68,6 +68,8 @@ export async function POST(
                 term,
                 totalCredits: schedule.totalCredits,
                 selectedDate: new Date(schedule.selectedDate),
+                sharedScheduleId: scheduleId || "",
+
         })
             .onDuplicateKeyUpdate({
                 set: {
@@ -108,6 +110,7 @@ export async function POST(
         return NextResponse.json({
             url,
             token,
+            scheduleId,
         });
     } catch (error) {
         console.error("Failed to create share link:", error);

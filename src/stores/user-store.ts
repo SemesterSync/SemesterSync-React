@@ -12,6 +12,7 @@ const defaultTab: Tab = {
 	totalCredits: 0,
 	selectedDate: new Date(),
 	permission: "edit",
+	sharedScheduleId: "",
 };
 
 const initialState: UserState = {
@@ -32,7 +33,12 @@ const useUserStore = create<UserStore>()(
 	
 
 			// tab management funcs
-			addTab: (id?: string, name?: string, events = [], permission: "view" | "edit" = "edit") => {
+			addTab: (
+				id?: string,
+				name?: string,
+				events = [],
+				permission?: "view" | "edit",
+			) => {
 				const tabId = id ?? uuid();
 				const tabs = get().tabs;
 				const tabExists = tabs.some((tab) => tab.id === tabId);
@@ -44,12 +50,14 @@ const useUserStore = create<UserStore>()(
 								? {
 										...tab,
 										name: name ?? tab.name,
-										permission,
 										events,
+										permission: permission ?? tab.permission,
+										sharedScheduleId: tab.sharedScheduleId || "",
 									}
 								: tab,
 						),
 					});
+
 					return tabId;
 				}
 
@@ -62,7 +70,8 @@ const useUserStore = create<UserStore>()(
 							events,
 							totalCredits: 0,
 							selectedDate: new Date(),
-							permission,
+							permission: permission ?? "edit",
+							sharedScheduleId: "",
 						},
 					],
 				});
@@ -199,6 +208,14 @@ const useUserStore = create<UserStore>()(
 				// re-calc the total credits
 				get().recalculateTabCredits(tabId);
 			},
+			setSharedScheduleId: (tabId, sharedScheduleId) =>
+				set((state) => ({
+					tabs: state.tabs.map((tab) =>
+						tab.id === tabId
+							? { ...tab, sharedScheduleId}
+							: tab,
+					),
+				})),
 		}),
 		{
 			name: "user-store",

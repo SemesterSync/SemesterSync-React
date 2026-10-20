@@ -60,7 +60,7 @@ export default function EventAddModal() {
 			<AlertDialogTrigger
 				render={
 					<Button
-						disabled={activeTab?.permission !== "edit" || activeTerm === ""}
+						disabled={activeTab?.permission === "view" || activeTerm === ""}
 						variant={activeTerm === "" ? "destructive" : "default"}
 					/>
 				}

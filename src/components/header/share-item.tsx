@@ -81,6 +81,7 @@ export function ShareItemModal({
 
     const activeTab = useUserStore((state) => state.getActiveTab());
     const activeTerm = useUserStore((state) => state.activeTerm)
+    const setSharedScheduleId = useUserStore((state) => state.setSharedScheduleId);
 
 
     const handleCreateLink = async () => {
@@ -109,7 +110,8 @@ export function ShareItemModal({
                 console.error("Failed to create share link:", data);
                 return;
             }
-
+            console.log("Share link created:", data);
+            setSharedScheduleId(activeTab.id, data.sharedScheduleId);
             setLink(data.url);
             setShareSuccess(true);
         } catch (error) {
